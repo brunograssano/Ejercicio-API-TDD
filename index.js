@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 
 import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname+'/.env' });
-const PORT = process.env.SERVER_API_PORT;
+const SERVER_API_PORT = process.env.SERVER_API_PORT;
 const SERVER_DB_HOST = process.env.SERVER_DB_HOST;
 
 
@@ -30,9 +30,9 @@ utilsRoutes(app);
 app.use(express.static('public'));
 
 app.get('/', (req, res) =>
-    res.send(`Node and express server running on port ${PORT}`)
+    res.send(`Node and express server running on port ${SERVER_API_PORT}`)
 );
 
-app.listen(PORT, () => 
-    console.log(`Your server is running on port ${PORT}`)
+app.listen(SERVER_API_PORT, () => 
+    console.log(`Your server is running on port ${SERVER_API_PORT}`)
 );
