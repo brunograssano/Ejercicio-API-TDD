@@ -1,3 +1,4 @@
+import { Application } from 'express';
 import { addNewUser,
         getUsers,
         getUserWithID,
@@ -5,9 +6,9 @@ import { addNewUser,
         deleteUser
 } from '../services/userService';
 
-const routes = (app) => {
+const routes = (app: Application) => {
     app.route('/users')
-        .get((req,res, next) => {
+        .get((req, res, next) => {
             // middleware
             console.log(`Request from: ${req.originalUrl}`)
             console.log(`Request type: ${req.method}`)
