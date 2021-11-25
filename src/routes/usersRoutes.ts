@@ -1,4 +1,5 @@
 import { Application } from 'express';
+import { loggerMiddleware } from '../middlewares/loggerMiddleware';
 import { addNewUser,
         getUsers,
         getUserWithID,
@@ -8,12 +9,7 @@ import { addNewUser,
 
 const routes = (app: Application) => {
     app.route('/users')
-        .get((req, res, next) => {
-            // middleware
-            console.log(`Request from: ${req.originalUrl}`)
-            console.log(`Request type: ${req.method}`)
-            next();
-        }, getUsers)
+        .get(loggerMiddleware, getUsers)
         
         // Post endpoint
         .post(addNewUser);
