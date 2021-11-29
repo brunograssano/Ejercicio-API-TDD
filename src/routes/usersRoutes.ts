@@ -6,7 +6,8 @@ import {
     getUserWithID,
     updateUser,
     deleteUser,
-    loginUser
+    loginUser,
+    updatePassword
 } from '../services/userService';
 
 const routes = (app: Application) => {
@@ -31,6 +32,9 @@ const routes = (app: Application) => {
 
         // User is trying to log in.
         .post(loginUser)
+
+        // User forgot password.
+        .patch(updatePassword)
 
 
 }

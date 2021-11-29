@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { model } from 'mongoose';
 import { UserSchema } from '../models/userModel';
+import {basicAuth} from "./authService";
 
 const User = model('User', UserSchema);
 
@@ -57,13 +58,28 @@ export const deleteUser: RequestHandler = (req, res) => {
 }
 
 export const loginUser: RequestHandler =  (req, res) => {
-    const basicAuth = req.headers.authorization  as string;
-    const encoded = basicAuth.split(' ');
-    const credentials = atob(encoded[1]).split(':');
+    const credentials = basicAuth(req.headers.authorization  as string);
     const username = credentials[0];
     const pass = credentials[1];
     User.find({username: username, password: pass}, (err, user) => {
             if (user.length==0) {
+                res.status(404).send("User not found");
+            }
+            res.json(user);//todo token
+        }
+    );
+
+}
+
+export const updatePassword: RequestHandler =  (req, res) => {
+    const credentials = basicAuth(req.headers.authorization  as string);
+    const username = credentials[0];
+    const pass = credentials[1];
+    User.findOneAndUpdate({username: username},
+        {password: pass},
+        { new: true },
+        (err, user) => {
+            if (!user) {
                 res.status(404).send("User not found");
             }
             res.json(user);//todo token
