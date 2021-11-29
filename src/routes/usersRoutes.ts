@@ -1,10 +1,12 @@
 import { Application } from 'express';
 import { loggerMiddleware } from '../middlewares/loggerMiddleware';
-import { addNewUser,
-        getUsers,
-        getUserWithID,
-        updateUser,
-        deleteUser
+import {
+    addNewUser,
+    getUsers,
+    getUserWithID,
+    updateUser,
+    deleteUser,
+    loginUser
 } from '../services/userService';
 
 const routes = (app: Application) => {
@@ -23,6 +25,14 @@ const routes = (app: Application) => {
 
         // deleting a specific user
         .delete(deleteUser);
+
+
+    app.route("/login/users")
+
+        // User is trying to log in.
+        .post(loginUser)
+
+
 }
 
 export default routes;

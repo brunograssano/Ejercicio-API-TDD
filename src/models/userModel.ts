@@ -5,6 +5,7 @@ type User = {
     password: string;
     firstName: string;
     lastName: string;
+    username: string;
     //........
     created_date: Date;
 }
@@ -12,6 +13,7 @@ type User = {
 export const UserSchema = new Schema<User>({
     email: {
         type: String,
+        unique: true,
         required: [true, 'Enter a email']
     },
     password: {
@@ -25,6 +27,11 @@ export const UserSchema = new Schema<User>({
     lastName: {
         type: String,
         required: [true, 'Enter a last name']
+    },
+    username: {
+        type: String,
+        unique: true,
+        required: [true, 'Enter a username']
     },
     //........
     created_date: {

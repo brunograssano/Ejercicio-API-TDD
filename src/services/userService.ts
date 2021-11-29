@@ -55,3 +55,19 @@ export const deleteUser: RequestHandler = (req, res) => {
         res.json({ message: 'successfuly deleted user'});
     });
 }
+
+export const loginUser: RequestHandler =  (req, res) => {
+    const basicAuth = req.headers.authorization  as string;
+    const encoded = basicAuth.split(' ');
+    const credentials = atob(encoded[1]).split(':');
+    const username = credentials[0];
+    const pass = credentials[1];
+    User.find({username: username, password: pass}, (err, user) => {
+            if (user.length==0) {
+                res.status(404).send("User not found");
+            }
+            res.json(user);//todo token
+        }
+    );
+
+}
