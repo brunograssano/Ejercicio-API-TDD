@@ -1,4 +1,4 @@
-import { RequestHandler } from "express";
+import {NextFunction, RequestHandler} from "express";
 import { model } from 'mongoose';
 import { UserSchema } from '../models/userModel';
 import {basicAuth, SALT_ROUNDS} from "./authService";
@@ -69,7 +69,7 @@ export const deleteUser: RequestHandler = (req, res) => {
     });
 }
 
-export const loginUser: RequestHandler =  (req, res) => {
+export const loginUser: RequestHandler =  (req, res,next: NextFunction) => {
     const credentials = basicAuth(req.headers.authorization  as string);
     const username = credentials[0];
 
@@ -87,7 +87,9 @@ export const loginUser: RequestHandler =  (req, res) => {
                     res.status(404).send("User not found");
                     return;
                 }
-                res.json(user);//todo token
+
+                res.locals = {...res.locals, username: user[0].username}
+                next()
             });
         }
     );
@@ -95,7 +97,7 @@ export const loginUser: RequestHandler =  (req, res) => {
 
 }
 
-export const updatePassword: RequestHandler =  (req, res) => {
+export const updatePassword: RequestHandler =  (req, res,next: NextFunction) => {
     const credentials = basicAuth(req.headers.authorization  as string);
     const username = credentials[0];
     bcrypt.hash(credentials[1],SALT_ROUNDS,(err, hash) => {
@@ -111,7 +113,9 @@ export const updatePassword: RequestHandler =  (req, res) => {
                     res.status(404).send("User not found");
                     return;
                 }
-                res.json(user);//todo token
+
+                res.locals = {...res.locals, username: user.username}
+                next()
             }
         );
     });

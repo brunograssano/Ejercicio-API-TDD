@@ -9,6 +9,7 @@ import {
     loginUser,
     updatePassword
 } from '../services/userService';
+import {createNewSession, jwtMiddleware} from "../middlewares/jwtMiddleware";
 
 const routes = (app: Application) => {
 
@@ -21,21 +22,21 @@ const routes = (app: Application) => {
 
     app.route('/manage/users/:userID')
         // get a specific user
-        .get(loggerMiddleware, getUserWithID)
+        .get(jwtMiddleware, getUserWithID)
 
         // updating a specific user
-        .patch(loggerMiddleware,updateUser)
+        .patch(jwtMiddleware,updateUser)
 
         // deleting a specific user
-        .delete(loggerMiddleware,deleteUser);
+        .delete(jwtMiddleware,deleteUser);
 
     app.route("/login/users")
 
         // User is trying to log in.
-        .post(loginUser)
+        .post(loginUser,createNewSession)
 
         // User forgot password.
-        .patch(updatePassword);
+        .patch(updatePassword,createNewSession);
 
 
 }
