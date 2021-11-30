@@ -9,6 +9,7 @@
   "author": "Tecnicas 7510 FIUBA",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
@@ -17,6 +18,7 @@
     "nodemon": "^2.0.15"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/body-parser": "^1.19.2",
     "@types/express": "^4.17.13",
     "babel-cli": "^6.26.0",

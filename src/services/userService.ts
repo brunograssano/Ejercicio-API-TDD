@@ -1,25 +1,35 @@
 import { RequestHandler } from "express";
 import { model } from 'mongoose';
 import { UserSchema } from '../models/userModel';
-import {basicAuth} from "./authService";
+import {basicAuth, SALT_ROUNDS} from "./authService";
+import bcrypt from 'bcrypt'
 
 const User = model('User', UserSchema);
 
 export const addNewUser: RequestHandler = (req, res) => {
-    let newUser = new User(req.body);
+    const credentials = basicAuth(req.headers.authorization  as string);
+    const username = credentials[0];
+    bcrypt.hash(credentials[1],SALT_ROUNDS,(err, hash) => {
+        req.body.username = username;
+        req.body.password = hash;
 
-    newUser.save((err, user) => {
-        if (err) {
-            res.send(err);
-        }
-        res.json(user);
+        let newUser = new User(req.body);
+        newUser.save((err, user) => {
+            if (err) {
+                res.send(err);
+                return;
+            }
+            res.json(user);
+        });
     });
 }
+
 
 export const getUsers: RequestHandler = (req, res) => {
     User.find({}, (err, user) => {
         if (err) {
             res.send(err);
+            return;
         }
         res.json(user);
     });
@@ -29,6 +39,7 @@ export const getUserWithID: RequestHandler = (req, res) => {
     User.findById(req.params.userID, null, null, (err, user) => {
         if (err) {
             res.send(err);
+            return;
         }
         res.json(user);
     });
@@ -42,6 +53,7 @@ export const updateUser: RequestHandler = (req, res) => {
         (err, user) => {
             if (err) {
                 res.send(err);
+                return;
             }
             res.json(user);
         }
@@ -60,30 +72,49 @@ export const deleteUser: RequestHandler = (req, res) => {
 export const loginUser: RequestHandler =  (req, res) => {
     const credentials = basicAuth(req.headers.authorization  as string);
     const username = credentials[0];
-    const pass = credentials[1];
-    User.find({username: username, password: pass}, (err, user) => {
+
+    User.find({username: username}, (err, user) => {
             if (user.length==0) {
                 res.status(404).send("User not found");
+                return;
             }
-            res.json(user);//todo token
+            bcrypt.compare(credentials[1],user[0].password,(err, areTheSame) => {
+                if (err) {
+                    res.send(err);
+                    return;
+                }
+                if (!areTheSame) {
+                    res.status(404).send("User not found");
+                    return;
+                }
+                res.json(user);//todo token
+            });
         }
     );
+
 
 }
 
 export const updatePassword: RequestHandler =  (req, res) => {
     const credentials = basicAuth(req.headers.authorization  as string);
     const username = credentials[0];
-    const pass = credentials[1];
-    User.findOneAndUpdate({username: username},
-        {password: pass},
-        { new: true },
-        (err, user) => {
-            if (!user) {
-                res.status(404).send("User not found");
-            }
-            res.json(user);//todo token
+    bcrypt.hash(credentials[1],SALT_ROUNDS,(err, hash) => {
+        if (err) {
+            console.error(err)
+            return;
         }
-    );
+        User.findOneAndUpdate({username: username},
+            {password: hash},
+            { new: true },
+            (err, user) => {
+                if (!user) {
+                    res.status(404).send("User not found");
+                    return;
+                }
+                res.json(user);//todo token
+            }
+        );
+    });
+
 
 }

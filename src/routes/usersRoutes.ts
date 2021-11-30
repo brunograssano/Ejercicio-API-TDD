@@ -13,10 +13,11 @@ import {
 const routes = (app: Application) => {
 
     app.route('/users')
-        .get(loggerMiddleware, getUsers)
+        //tests
+        .get(getUsers)
         
-        // Post endpoint
-        .post(loggerMiddleware,addNewUser);
+        // sign up user
+        .post(addNewUser);
 
     app.route('/manage/users/:userID')
         // get a specific user
@@ -31,10 +32,10 @@ const routes = (app: Application) => {
     app.route("/login/users")
 
         // User is trying to log in.
-        .post(loggerMiddleware,loginUser)
+        .post(loginUser)
 
         // User forgot password.
-        .patch(loggerMiddleware,updatePassword);
+        .patch(updatePassword);
 
 
 }
