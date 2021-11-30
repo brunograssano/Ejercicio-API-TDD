@@ -53,7 +53,7 @@ export const deleteUser: RequestHandler = (req, res) => {
         if (err) {
             res.send(err);
         }
-        res.json({ message: 'successfuly deleted user'});
+        res.json({ message: 'Successfuly deleted user'});
     });
 }
 

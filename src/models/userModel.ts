@@ -10,7 +10,7 @@ type User = {
     nickname: string;
     gender: string;
     preferences: string[];
-
+    secondaryEmails: string[];
     created_date: Date;
 }
 
@@ -55,7 +55,13 @@ export const UserSchema = new Schema<User>({
         public: Boolean,
         }
     ],
-
+    secondaryEmails: [
+        {
+            email: String,
+            notifications: Boolean,
+            public: Boolean
+        }
+    ],
 
     created_date: {
         type: Date,
