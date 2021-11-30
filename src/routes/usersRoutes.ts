@@ -11,30 +11,30 @@ import {
 } from '../services/userService';
 
 const routes = (app: Application) => {
+
     app.route('/users')
         .get(loggerMiddleware, getUsers)
         
         // Post endpoint
-        .post(addNewUser);
+        .post(loggerMiddleware,addNewUser);
 
-    app.route('/users/:userID')
+    app.route('/manage/users/:userID')
         // get a specific user
-        .get(getUserWithID)
+        .get(loggerMiddleware, getUserWithID)
 
         // updating a specific user
-        .put(updateUser)
+        .patch(loggerMiddleware,updateUser)
 
         // deleting a specific user
-        .delete(deleteUser);
-
+        .delete(loggerMiddleware,deleteUser);
 
     app.route("/login/users")
 
         // User is trying to log in.
-        .post(loginUser)
+        .post(loggerMiddleware,loginUser)
 
         // User forgot password.
-        .patch(updatePassword)
+        .patch(loggerMiddleware,updatePassword);
 
 
 }

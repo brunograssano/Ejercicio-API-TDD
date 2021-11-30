@@ -5,6 +5,12 @@ import {basicAuth} from "./authService";
 
 const User = model('User', UserSchema);
 
+const getValueOfParam = (param : string): string => {
+    const paramSplitted = param.split('=');
+    return paramSplitted[1];
+};
+
+
 export const addNewUser: RequestHandler = (req, res) => {
     let newUser = new User(req.body);
 
@@ -26,7 +32,7 @@ export const getUsers: RequestHandler = (req, res) => {
 }
 
 export const getUserWithID: RequestHandler = (req, res) => {
-    User.findById(req.params.userID, null, null, (err, user) => {
+    User.findById(getValueOfParam(req.params.userID), null, null, (err, user) => {
         if (err) {
             res.send(err);
         }
@@ -36,7 +42,7 @@ export const getUserWithID: RequestHandler = (req, res) => {
 
 export const updateUser: RequestHandler = (req, res) => {
     User.findOneAndUpdate(
-        { _id: req.params.userID},
+        { _id: getValueOfParam(req.params.userID)},
         req.body,
         { new: true, useFindAndModify: false },
         (err, user) => {
@@ -49,7 +55,7 @@ export const updateUser: RequestHandler = (req, res) => {
 }
 
 export const deleteUser: RequestHandler = (req, res) => {
-    User.remove({ _id: req.params.userID}, err => {
+    User.remove({ _id: getValueOfParam(req.params.userID)}, err => {
         if (err) {
             res.send(err);
         }
