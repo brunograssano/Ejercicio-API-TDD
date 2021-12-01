@@ -6,90 +6,98 @@ import bcrypt from 'bcrypt'
 
 const User = model('User', UserSchema);
 
-export const addNewUser: RequestHandler = (req, res) => {
-    const credentials = basicAuth(req.headers.authorization  as string);
+export const addNewUser: RequestHandler = (request, response,next: NextFunction) => {
+    const credentials = basicAuth(request.headers.authorization as string);
     const username = credentials[0];
-    bcrypt.hash(credentials[1],SALT_ROUNDS,(err, hash) => {
-        req.body.username = username;
-        req.body.password = hash;
+    bcrypt.hash(credentials[1],SALT_ROUNDS,(error, hash) => {
+        request.body.username = username;
+        request.body.password = hash;
 
-        let newUser = new User(req.body);
-        newUser.save((err, user) => {
-            if (err) {
-                res.send(err);
+        let newUser = new User(request.body);
+        newUser.id = newUser._id;
+        newUser.save((error, user) => {
+            if (error) {
+                response.send(error);
                 return;
             }
-            res.json(user);
+            response.locals = {...response.locals, username: user.username, id: user.id, message: "User sign up successful"}
+            next()
         });
     });
 }
 
 
-export const getUsers: RequestHandler = (req, res) => {
-    User.find({}, (err, user) => {
-        if (err) {
-            res.send(err);
+export const getUsers: RequestHandler = (request, response) => {
+    User.find({}, (error, users) => {
+        if (error) {
+            response.send(error);
             return;
         }
-        res.json(user);
+        response.json(users);
     });
 }
 
-export const getUserWithID: RequestHandler = (req, res) => {
-    User.findById(req.params.userID, null, null, (err, user) => {
-        if (err) {
-            res.send(err);
+export const getUserWithID: RequestHandler = (request, response) => {
+    User.findById(response.locals.session.id, null, null, (error, user) => {
+        if (error) {
+            response.send(error);
             return;
         }
-        res.json(user);
+        response.json(user);
     });
 }
 
-export const updateUser: RequestHandler = (req, res) => {
+export const updateUser: RequestHandler = (request, response) => {
     User.findOneAndUpdate(
-        { _id: req.params.userID},
-        req.body,
+        { _id: response.locals.session.id},
+        request.body,
         { new: true, useFindAndModify: false },
-        (err, user) => {
-            if (err) {
-                res.send(err);
+        (error, user) => {
+            if (error) {
+                response.send(error);
                 return;
             }
-            res.json(user);
+            response.json({ message: 'Successfuly updated user'});
         }
     );
 }
 
-export const deleteUser: RequestHandler = (req, res) => {
-    User.remove({ _id: req.params.userID}, err => {
-        if (err) {
-            res.send(err);
+export const deleteUser: RequestHandler = (request, response) => {
+    User.remove({ _id: response.locals.session.id}, error => {
+        if (error) {
+            response.send(error);
         }
-        res.json({ message: 'Successfuly deleted user'});
+        response.json({ message: 'Successfuly deleted user'});
     });
 }
 
-export const loginUser: RequestHandler =  (req, res,next: NextFunction) => {
-    const credentials = basicAuth(req.headers.authorization  as string);
+export const loginUser: RequestHandler =  (request, response,next: NextFunction) => {
+    const credentials = basicAuth(request.headers.authorization  as string);
     const username = credentials[0];
 
-    User.find({username: username}, (err, user) => {
+    User.find({username: username}, (error, user) => {
             if (user.length==0) {
-                res.status(404).send("User not found");
+                response.status(404).send("User not found");
                 return;
             }
-            bcrypt.compare(credentials[1],user[0].password,(err, areTheSame) => {
-                if (err) {
-                    res.send(err);
+            bcrypt.compare(credentials[1],user[0].password,(error, areTheSame) => {
+                if (error) {
+                    response.send(error);
                     return;
                 }
                 if (!areTheSame) {
-                    res.status(404).send("User not found");
+                    response.status(404).send("User not found");
                     return;
                 }
 
-                res.locals = {...res.locals, username: user[0].username}
-                next()
+                response.locals = {
+                    ...response.locals,
+                    username: user[0].username,
+                    id: user[0].id,
+                    message: "Succesfully logged in"
+                };
+
+                next();
             });
         }
     );
@@ -97,12 +105,12 @@ export const loginUser: RequestHandler =  (req, res,next: NextFunction) => {
 
 }
 
-export const updatePassword: RequestHandler =  (req, res,next: NextFunction) => {
-    const credentials = basicAuth(req.headers.authorization  as string);
+export const updatePassword: RequestHandler =  (request, response,next: NextFunction) => {
+    const credentials = basicAuth(request.headers.authorization  as string);
     const username = credentials[0];
-    bcrypt.hash(credentials[1],SALT_ROUNDS,(err, hash) => {
-        if (err) {
-            console.error(err)
+    bcrypt.hash(credentials[1],SALT_ROUNDS,(error, hash) => {
+        if (error) {
+            console.error(error)
             return;
         }
         User.findOneAndUpdate({username: username},
@@ -110,12 +118,18 @@ export const updatePassword: RequestHandler =  (req, res,next: NextFunction) => 
             { new: true },
             (err, user) => {
                 if (!user) {
-                    res.status(404).send("User not found");
+                    response.status(404).send("User not found");
                     return;
                 }
 
-                res.locals = {...res.locals, username: user.username}
-                next()
+                response.locals = {
+                    ...response.locals,
+                    username: user.username,
+                    id: user.id,
+                    message: "Succesfully updated password",
+                };
+
+                next();
             }
         );
     });

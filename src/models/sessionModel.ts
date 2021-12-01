@@ -1,6 +1,7 @@
 
 
 export interface Session {
+    id: string;
     username: string;
     issuedTimestamp: number;
     expiresTimestamp: number;

@@ -18,7 +18,7 @@ const routes = (app: Application) => {
         .get(getUsers)
         
         // sign up user
-        .post(addNewUser);
+        .post(addNewUser,createNewSession);
 
     app.route('/manage/users/:userID')
         // get a specific user

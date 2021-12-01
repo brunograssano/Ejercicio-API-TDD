@@ -52,8 +52,8 @@ export function jwtMiddleware(request: Request, response: Response, next: NextFu
 }
 
 export function createNewSession(request: Request, response: Response) {
-    const session = encodeSession(SECRET_KEY, {username: response.locals.username});
+    const session = encodeSession(SECRET_KEY, { id:response.locals.id, username: response.locals.username});
 
-    response.status(201).json(session);
+    response.status(201).json({message:response.locals.message, session: session});
 }
 
