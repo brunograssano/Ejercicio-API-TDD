@@ -1,5 +1,15 @@
 import { Schema } from 'mongoose';
 
+type UniqueField = {
+    name: string;
+    public: boolean;
+}
+
+type MultipleValuesInField = {
+    name: string[];
+    public: boolean;
+}
+
 type User = {
     id:string
     email: string;
@@ -12,6 +22,7 @@ type User = {
     gender: string;
     preferences: string[];
     secondaryEmails: string[];
+    contacts: MultipleValuesInField;
     created_date: Date;
 }
 
@@ -63,6 +74,10 @@ export const UserSchema = new Schema<User>({
             public: Boolean
         }
     ],
+    contacts: {
+        name: [],
+        public: Boolean,
+    },
 
     created_date: {
         type: Date,

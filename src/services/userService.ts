@@ -136,3 +136,40 @@ export const updatePassword: RequestHandler =  (request, response,next: NextFunc
 
 
 }
+
+
+export const getContacts: RequestHandler = (request, response) => {
+    User.findById(response.locals.session.id, {_id:0,contacts:1},null,(error, user) => {
+        if (error) {
+            response.send(error);
+            return;
+        }
+
+        if (user?.contacts.name.length == 0){
+            response.json({message: "There are no contacts",contacts:[]});
+            return;
+        }
+
+        User.find({"username": {"$in": user?.contacts.name} },{_id:0,password:0,__v:0},null,(errorContacts, contacts) => {
+            if (errorContacts) {
+                response.send(errorContacts);
+                return;
+            }
+
+            response.json({message:"Contacts sent succesfully",contacts:contacts});
+        });
+
+    });
+}
+
+export const deleteContact: RequestHandler = (request, response) => {
+    User.findById(response.locals.session.id, {_id:0, contacts:1},null,(error, user) => {
+        if (error) {
+            response.send(error);
+            return;
+        }
+        //wip
+
+        response.json(user?.contacts);
+    });
+}

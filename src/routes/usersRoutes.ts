@@ -7,7 +7,7 @@ import {
     updateUser,
     deleteUser,
     loginUser,
-    updatePassword
+    updatePassword, getContacts, deleteContact
 } from '../services/userService';
 import {createNewSession, jwtMiddleware} from "../middlewares/jwtMiddleware";
 
@@ -29,6 +29,14 @@ const routes = (app: Application) => {
 
         // deleting a specific user
         .delete(jwtMiddleware,deleteUser);
+
+    app.route('/manage/contacts/:userID')
+        // a User can see its contacts
+        .get(jwtMiddleware,getContacts)
+
+        // a User can delete a contact
+        .delete(jwtMiddleware,deleteContact)
+
 
     app.route("/login/users")
 
