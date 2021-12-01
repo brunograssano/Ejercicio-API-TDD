@@ -63,7 +63,7 @@ export const updateUser: RequestHandler = (request, response) => {
 }
 
 export const deleteUser: RequestHandler = (request, response) => {
-    User.remove({ _id: response.locals.session.id}, error => {
+    User.deleteOne({ _id: response.locals.session.id}, error => {
         if (error) {
             response.send(error);
         }
@@ -163,13 +163,14 @@ export const getContacts: RequestHandler = (request, response) => {
 }
 
 export const deleteContact: RequestHandler = (request, response) => {
-    User.findById(response.locals.session.id, {_id:0, contacts:1},null,(error, user) => {
+    User.findByIdAndUpdate(response.locals.session.id,
+        {"$pull":{"contacts.name":request.body.name}},
+        null,
+        (error, user) => {
         if (error) {
             response.send(error);
             return;
         }
-        //wip
-
-        response.json(user?.contacts);
+        response.json({message:"Contact deleted succesfully"});
     });
 }
