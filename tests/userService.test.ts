@@ -73,6 +73,28 @@ describe("User Service Tests", () => {
             });
     });
 
+    it('Should return that the user has no contacts', (done) => {
+        chai.request(baseUrl)
+            .get('/manage/contacts/' + userSession.id)
+            .set('JWT-Token',token)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('There are no contacts');
+                done();
+            });
+    });
+
+    it('Should return that the user cannot delete a contact if it has none', (done) => {
+        chai.request(baseUrl)
+            .delete('/manage/contacts/' + userSession.id)
+            .set('JWT-Token',token)
+            .send({'name':'test'})
+            .end((error , response) => {
+                expect(response.status).equal(400);
+                expect(response.body.message).equal('There are no contacts to delete');
+                done();
+            });
+    });
 
 
 })

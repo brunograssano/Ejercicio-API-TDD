@@ -171,6 +171,14 @@ export const deleteContact: RequestHandler = (request, response) => {
             response.send(error);
             return;
         }
+        if (user?.contacts.name.length == 0){
+            response.status(400).send({message:"There are no contacts to delete"});
+            return;
+        }
+        if (!user?.contacts.name.includes(request.body.name)){
+            response.status(400).send({message:"User doesn't have " + request.body.name + " as a contact"});
+            return;
+        }
         response.json({message:"Contact deleted successfully"});
     });
 }
