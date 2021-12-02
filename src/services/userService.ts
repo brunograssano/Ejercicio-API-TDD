@@ -66,6 +66,7 @@ export const deleteUser: RequestHandler = (request, response) => {
     User.deleteOne({ _id: response.locals.session.id}, error => {
         if (error) {
             response.send(error);
+            return;
         }
         response.json({ message: 'Successfully deleted user'});
     });

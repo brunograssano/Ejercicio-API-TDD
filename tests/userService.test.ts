@@ -96,5 +96,16 @@ describe("User Service Tests", () => {
             });
     });
 
+    it('Should return that the user deleted the account', (done) => {
+        chai.request(baseUrl)
+            .delete('/manage/users/' + userSession.id)
+            .set('JWT-Token',token)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Successfully deleted user');
+                done();
+            });
+    });
+
 
 })
