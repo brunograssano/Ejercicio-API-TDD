@@ -57,7 +57,7 @@ export const updateUser: RequestHandler = (request, response) => {
                 response.send(error);
                 return;
             }
-            response.json({ message: 'Successfuly updated user'});
+            response.json({ message: 'Successfully updated user'});
         }
     );
 }
@@ -67,7 +67,7 @@ export const deleteUser: RequestHandler = (request, response) => {
         if (error) {
             response.send(error);
         }
-        response.json({ message: 'Successfuly deleted user'});
+        response.json({ message: 'Successfully deleted user'});
     });
 }
 
@@ -94,7 +94,7 @@ export const loginUser: RequestHandler =  (request, response,next: NextFunction)
                     ...response.locals,
                     username: user[0].username,
                     id: user[0].id,
-                    message: "Succesfully logged in"
+                    message: "Successfully logged in"
                 };
 
                 next();
@@ -126,7 +126,7 @@ export const updatePassword: RequestHandler =  (request, response,next: NextFunc
                     ...response.locals,
                     username: user.username,
                     id: user.id,
-                    message: "Succesfully updated password",
+                    message: "Successfully updated password",
                 };
 
                 next();
@@ -156,7 +156,7 @@ export const getContacts: RequestHandler = (request, response) => {
                 return;
             }
 
-            response.json({message:"Contacts sent succesfully",contacts:contacts});
+            response.json({message:"Contacts sent successfully",contacts:contacts});
         });
 
     });
@@ -171,6 +171,6 @@ export const deleteContact: RequestHandler = (request, response) => {
             response.send(error);
             return;
         }
-        response.json({message:"Contact deleted succesfully"});
+        response.json({message:"Contact deleted successfully"});
     });
 }
