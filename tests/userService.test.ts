@@ -15,9 +15,7 @@ describe("User Service Tests", () => {
         chai.request(baseUrl)
             .post('/users')
             .auth('test','test', {type:"basic"})
-            .send({'email':'test-email@test.com',
-                    'firstName':'test',
-                    'lastName':'test'})
+            .send({'email':'test-email@test.com', 'firstName':'test', 'lastName':'test'})
             .end((error , response) => {
                 expect(response.status).equal(201);
                 expect(response.body.session).to.have.property("token");
@@ -38,12 +36,39 @@ describe("User Service Tests", () => {
             .set('JWT-Token',token)
             .end((error , response) => {
                 expect(response.status).equal(200);
-                console.log(response.body)
                 expect(response.body.email).equal('test-email@test.com');
                 expect(response.body.firstName).equal('test');
                 expect(response.body.lastName).equal('test');
                 expect(response.body.username).equal('test');
                 expect(response.body._id).equal(userSession.id);
+                done();
+            });
+    });
+
+    it('Should update the information about the user', (done) => {
+        chai.request(baseUrl)
+            .patch('/manage/users/' + userSession.id)
+            .set('JWT-Token',token)
+            .send({'firstName':'test1', 'lastName':'test2', 'nickname':'testNick', 'photo': {'value':'testPhotoInBase64','public':true}})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Successfully updated user');
+                done();
+            });
+    });
+
+    it('Should return the information about the updated user', (done) => {
+        chai.request(baseUrl)
+            .get('/manage/users/' + userSession.id)
+            .set('JWT-Token',token)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.email).equal('test-email@test.com');
+                expect(response.body.firstName).equal('test1');
+                expect(response.body.lastName).equal('test2');
+                expect(response.body.nickname).equal('testNick');
+                expect(response.body.photo.value).equal('testPhotoInBase64');
+                expect(response.body.photo.public).equal(true);
                 done();
             });
     });
