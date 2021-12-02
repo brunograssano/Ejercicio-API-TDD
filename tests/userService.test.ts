@@ -96,6 +96,64 @@ describe("User Service Tests", () => {
             });
     });
 
+    it('Should return user not found when using a wrong password in an existing user', (done) => {
+        chai.request(baseUrl)
+            .post('/login/users')
+            .auth('test','test1', {type:"basic"})
+            .end((error , response) => {
+                expect(response.status).equal(404);
+                expect(response.body.message).equal('User not found');
+                done();
+            });
+    });
+
+    it('Should return user not found when a user does not exists', (done) => {
+        chai.request(baseUrl)
+            .post('/login/users')
+            .auth('test2','test2', {type:"basic"})
+            .end((error , response) => {
+                expect(response.status).equal(404);
+                expect(response.body.message).equal('User not found');
+                done();
+            });
+    });
+
+    it('Should return a new token when logged in', (done) => {
+        chai.request(baseUrl)
+            .post('/login/users')
+            .auth('test','test', {type:"basic"})
+            .end((error , response) => {
+                expect(response.status).equal(201);
+                expect(response.body.message).equal('Successfully logged in');
+                expect(response.body.session).to.have.property("token");
+                done();
+            });
+    });
+
+    it('Should return a new token when the user changes password', (done) => {
+        chai.request(baseUrl)
+            .patch('/login/users')
+            .auth('test','testNewPassword', {type:"basic"})
+            .end((error , response) => {
+                expect(response.status).equal(201);
+                expect(response.body.message).equal('Successfully updated password');
+                expect(response.body.session).to.have.property("token");
+                done();
+            });
+    });
+
+    it('Should return a new token when logging in with the new password', (done) => {
+        chai.request(baseUrl)
+            .post('/login/users')
+            .auth('test','testNewPassword', {type:"basic"})
+            .end((error , response) => {
+                expect(response.status).equal(201);
+                expect(response.body.message).equal('Successfully logged in');
+                expect(response.body.session).to.have.property("token");
+                done();
+            });
+    });
+
     it('Should return that the user deleted the account', (done) => {
         chai.request(baseUrl)
             .delete('/manage/users/' + userSession.id)

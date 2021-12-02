@@ -78,7 +78,7 @@ export const loginUser: RequestHandler =  (request, response,next: NextFunction)
 
     User.find({username: username}, (error, user) => {
             if (user.length==0) {
-                response.status(404).send("User not found");
+                response.status(404).send({message:"User not found"});
                 return;
             }
             bcrypt.compare(credentials[1],user[0].password,(error, areTheSame) => {
@@ -87,7 +87,7 @@ export const loginUser: RequestHandler =  (request, response,next: NextFunction)
                     return;
                 }
                 if (!areTheSame) {
-                    response.status(404).send("User not found");
+                    response.status(404).send({message:"User not found"});
                     return;
                 }
 
@@ -119,7 +119,7 @@ export const updatePassword: RequestHandler =  (request, response,next: NextFunc
             { new: true },
             (err, user) => {
                 if (!user) {
-                    response.status(404).send("User not found");
+                    response.status(404).send({message:"User not found"});
                     return;
                 }
 
