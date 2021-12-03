@@ -29,8 +29,8 @@ interface QuerySearch {
 }
 
 
-export const getSearchQuery = (request: Request) : Object => {
-    let searchValues : Filters = request.body as Filters;
+export const getSearchQuery = (queryValues: Object) : Object => {
+    let searchValues : Filters = queryValues as Filters;
     let query : QuerySearch = {};
     if (searchValues == null) {
         return query;
@@ -75,7 +75,6 @@ export const getSearchQuery = (request: Request) : Object => {
         query.preferences = {"$elemMatch":{"value":{"$in":searchValues.preferences},"public":true}};
     }
 */
-    console.log(query)
 
     return query;
 }

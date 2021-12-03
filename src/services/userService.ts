@@ -194,11 +194,9 @@ export const deleteContact: RequestHandler = (request, response) => {
 
 export const searchUsers: RequestHandler = (request, response) => {
 
-    // @ts-ignore
-    let searchQuery = getSearchQuery(request);
+    let searchQuery = getSearchQuery(request.query);
 
-
-    User.find(searchQuery,
+    User.find(searchQuery,{password:0,_id:0,__v:0,created_date:0},null,
         (error, users) => {
         if (error) {
             response.send(error);
