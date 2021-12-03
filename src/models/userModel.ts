@@ -32,6 +32,19 @@ type User = {
     created_date: Date;
 }
 
+export type UserView = {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+    photo?: string;
+    nickname?: string;
+    gender?: string;
+    preferences?: {preferenceType: string; value:string;}[];
+    secondaryEmails?: string[];
+    contacts?: string[];
+}
+
 export const UserSchema = new Schema<User>({
     email: {
         type: {
@@ -91,7 +104,7 @@ export const UserSchema = new Schema<User>({
     ],
     secondaryEmails: [
         {
-            email: String,
+            value: String,
             notifications: Boolean,
             public: Boolean
         }

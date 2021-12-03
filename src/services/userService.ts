@@ -1,6 +1,6 @@
 import {NextFunction, RequestHandler} from "express";
 import { model } from 'mongoose';
-import { UserSchema } from '../models/userModel';
+import {UserSchema, UserView} from '../models/userModel';
 import {basicAuth, SALT_ROUNDS, validEmail} from "./authService";
 import bcrypt from 'bcrypt'
 import {getSearchQuery} from "./queryServices";
@@ -39,7 +39,7 @@ export const getUsers: RequestHandler = (request, response) => {
 }
 
 export const getUserWithID: RequestHandler = (request, response) => {
-    User.findById(response.locals.session.id, null, null, (error, user) => {
+    User.findById(response.locals.session.id, {photo:0,__v:0}, null, (error, user) => {
         if (error) {
             response.send(error);
             return;
@@ -158,7 +158,7 @@ export const getContacts: RequestHandler = (request, response) => {
             return;
         }
 
-        User.find({"username": {"$in": user?.contacts.name} },{_id:0,password:0,__v:0},null,(errorContacts, contacts) => {
+        User.find({"username": {"$in": user?.contacts.name} },{_id:0,password:0,__v:0,photo:0},null,(errorContacts, contacts) => {
             if (errorContacts) {
                 response.send(errorContacts);
                 return;
@@ -202,6 +202,49 @@ export const searchUsers: RequestHandler = (request, response) => {
             response.send(error);
             return;
         }
-        response.json(users);
+
+        let usersResponse :  UserView[] = [];
+        let tempUser : UserView = {};
+        users.forEach(function (user) {
+            tempUser.username = user.username;
+            if (user.firstName["public"]) {
+                tempUser.firstName = user.firstName["value"];
+            }
+            if (user.lastName["public"]) {
+                tempUser.lastName = user.lastName["value"];
+            }
+            if (user.email["public"]) {
+                tempUser.email = user.email["value"];
+            }
+            if (user.gender && user.gender["public"]) {
+                tempUser.gender = user.gender["value"];
+            }
+            if (user.nickname && user.nickname["public"]) {
+                tempUser.nickname = user.nickname["value"];
+            }
+            if (user.contacts && user.contacts["public"]) {
+                tempUser.contacts = user.contacts["name"];
+            }
+
+            tempUser.secondaryEmails = [];
+            user.secondaryEmails.forEach(function (email) {
+                if (email.public && tempUser.secondaryEmails) {
+                    tempUser.secondaryEmails.push(email.value);
+                }
+            })
+
+            tempUser.preferences = [];
+            user.preferences.forEach(function (preference) {
+                if (preference.public && tempUser.preferences) {
+                    tempUser.preferences.push({preferenceType:preference.preferenceType,value:preference.value});
+                }
+            })
+
+
+            usersResponse.push({...tempUser});
+            tempUser = {}
+        })
+
+        response.json(usersResponse);
     });
 }
