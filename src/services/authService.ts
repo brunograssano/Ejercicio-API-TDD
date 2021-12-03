@@ -7,4 +7,6 @@ export const basicAuth = (authorization : string): string[] => {
     return credentials;
 };
 
-
+export const validEmail = (email : string) : boolean => {
+    return false;
+}

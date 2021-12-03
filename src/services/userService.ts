@@ -1,8 +1,9 @@
 import {NextFunction, RequestHandler} from "express";
 import { model } from 'mongoose';
 import { UserSchema } from '../models/userModel';
-import {basicAuth, SALT_ROUNDS} from "./authService";
+import {basicAuth, SALT_ROUNDS, validEmail} from "./authService";
 import bcrypt from 'bcrypt'
+import {getSearchQuery} from "./queryServices";
 
 const User = model('User', UserSchema);
 
@@ -48,6 +49,12 @@ export const getUserWithID: RequestHandler = (request, response) => {
 }
 
 export const updateUser: RequestHandler = (request, response) => {
+
+    if(request.body.email && !validEmail(request.body.email)){
+        response.status(400).send({ message: 'Not a valid email'});
+        return;
+    }
+
     User.findOneAndUpdate(
         { _id: response.locals.session.id},
         request.body,
@@ -181,5 +188,22 @@ export const deleteContact: RequestHandler = (request, response) => {
             return;
         }
         response.json({message:"Contact deleted successfully"});
+    });
+}
+
+
+export const searchUsers: RequestHandler = (request, response) => {
+
+    // @ts-ignore
+    let searchQuery = getSearchQuery(request);
+
+
+    User.find(searchQuery,
+        (error, users) => {
+        if (error) {
+            response.send(error);
+            return;
+        }
+        response.json(users);
     });
 }

@@ -7,7 +7,7 @@ import {
     updateUser,
     deleteUser,
     loginUser,
-    updatePassword, getContacts, deleteContact
+    updatePassword, getContacts, deleteContact, searchUsers
 } from '../services/userService';
 import {createNewSession, jwtMiddleware} from "../middlewares/jwtMiddleware";
 
@@ -20,6 +20,10 @@ const routes = (app: Application) => {
         // sign up user
         .post(addNewUser,createNewSession);
 
+    app.route('/search/users')
+        // can search for users
+        .get(searchUsers)
+
     app.route('/manage/users/:userID')
         // get a specific user
         .get(jwtMiddleware, getUserWithID)
@@ -28,14 +32,14 @@ const routes = (app: Application) => {
         .patch(jwtMiddleware,updateUser)
 
         // deleting a specific user
-        .delete(jwtMiddleware,deleteUser);
+        .delete(jwtMiddleware,deleteUser); // otras funciones que se encargan de la respuesta
 
     app.route('/manage/contacts/:userID')
         // a User can see its contacts
         .get(jwtMiddleware,getContacts)
 
         // a User can delete a contact
-        .delete(jwtMiddleware,deleteContact)
+        .delete(jwtMiddleware,deleteContact) // separar la accion, que se encapsule mas, recibe y devuelve objetos
 
 
     app.route("/login/users")

@@ -11,25 +11,33 @@ type MultipleValuesInField = {
     public: boolean;
 }
 
+type UniqueValueField = {
+    value: string;
+    public: boolean;
+}
+
 type User = {
     id:string
-    email: string;
+    email: UniqueValueField;
     password: string;
-    firstName: string;
-    lastName: string;
+    firstName: UniqueValueField;
+    lastName: UniqueValueField;
     username: string;
-    photo: string;
-    nickname: string;
-    gender: string;
+    photo: UniqueValueField;
+    nickname: UniqueValueField;
+    gender: UniqueValueField;
     preferences: PreferenceField[];
-    secondaryEmails: string[];
+    secondaryEmails: UniqueValueField[];
     contacts: MultipleValuesInField;
     created_date: Date;
 }
 
 export const UserSchema = new Schema<User>({
     email: {
-        type: String,
+        type: {
+            value: String,
+            public: Boolean,
+        },
         unique: true,
         required: [true, 'Enter a email']
     },
@@ -38,11 +46,17 @@ export const UserSchema = new Schema<User>({
         required: [true, 'Enter a password']
     },
     firstName: {
-        type: String,
+        type: {
+            value: String,
+            public: Boolean,
+        },
         required: [true, 'Enter a first name']
     },
     lastName: {
-        type: String,
+        type: {
+            value: String,
+            public: Boolean,
+        },
         required: [true, 'Enter a last name']
     },
     username: {
@@ -51,16 +65,22 @@ export const UserSchema = new Schema<User>({
         required: [true, 'Enter a username']
     },
     photo: {
-        value: String,
-        public: Boolean,
+        type: { // No devolver, crear un endpoint especifico para el recurso
+            value: String,
+            public: Boolean,
+        },
     },
     nickname: {
-        value: String,
-        public: Boolean,
+        type: {
+            value: String,
+            public: Boolean,
+        },
     },
     gender: {
-        value: String,
-        public: Boolean,
+        type: {
+            value: String,
+            public: Boolean,
+        },
     },
     preferences: [
         {
@@ -76,8 +96,8 @@ export const UserSchema = new Schema<User>({
             public: Boolean
         }
     ],
-    contacts: {
-        name: [],
+    contacts: { // es como un follow, se mandaria un codigo
+        name: [], // revisar crear un objeto que tenga el nombre y el estado, pendiente o no y un codigo que se usa para aceptar (otro endpoint el aceptar)
         public: Boolean,
     },
 
