@@ -16,9 +16,15 @@ type UniqueValueField = {
     public: boolean;
 }
 
+type EmailField = {
+    value: string;
+    public: boolean;
+    validated: boolean;
+}
+
 type User = {
     id:string
-    email: UniqueValueField;
+    email: EmailField;
     password: string;
     firstName: UniqueValueField;
     lastName: UniqueValueField;
@@ -50,6 +56,7 @@ export const UserSchema = new Schema<User>({
         type: {
             value: String,
             public: Boolean,
+            validated: Boolean,
         },
         unique: true,
         required: [true, 'Enter a email']

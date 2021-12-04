@@ -21,7 +21,12 @@ export const addNewUser: RequestHandler = (request, response,next: NextFunction)
                 response.send(error);
                 return;
             }
-            response.locals = {...response.locals, username: user.username, id: user.id, message: "User sign up successful"}
+            response.locals = {...response.locals,
+                username: user.username,
+                id: user.id,
+                email: user.email.value,
+            }
+
             next()
         });
     });
@@ -297,5 +302,37 @@ export const forgotPassword: RequestHandler = (request, response,next) => {
 
 
             next()
+        });
+}
+
+export const validateEmail: RequestHandler = (request, response) => {
+    User.findByIdAndUpdate(response.locals.session.id, {"email.validated":true},null,
+        (error, user) => {
+            if (error) {
+                response.send(error);
+                return;
+            }
+
+            response.json({message:"Email validated successfully, please login to continue"});
+        });
+}
+
+export const checkIfEmailIsValidated: RequestHandler = (request, response,next) => {
+    User.findById(response.locals.session.id, {email:1},null,
+        (error, user) => {
+            if (error) {
+                response.send(error);
+                return;
+            }
+            if (!user){
+                response.status(400).send({message:"No user found"});
+                return;
+            }
+            else if(!user.email.validated){
+                response.status(400).send({message:"Validate the email to continue"});
+                return;
+            }
+
+            next();
         });
 }

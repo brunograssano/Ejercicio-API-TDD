@@ -59,10 +59,16 @@ export function createNewSession(request: Request, response: Response) {
 
 export function createSessionToRecoverPassword(request: Request, response: Response) {
     const session = encodeSession(SECRET_KEY, { id:response.locals.id, username: response.locals.username});
-    console.log('DEBUG - Code to reset password sent to email: ' + response.locals.email)
+    console.log('DEBUG - Code to reset password sent to: ' + response.locals.email)
     console.log('DEBUG - Token sent: ' + session.token)
 
     response.json({message:"Password reset link sent to email successfully"});
 }
 
+export function createValidateEmailSession(request: Request, response: Response) {
+    const session = encodeSession(SECRET_KEY, { id:response.locals.id, username: response.locals.username});
+    console.log('DEBUG - Code to validate email sent to: ' + response.locals.email)
+    console.log('DEBUG - Token sent: ' + session.token)
 
+    response.status(201).json({message:"User sign up successful, please validate email to continue", DEBUG:session});
+}

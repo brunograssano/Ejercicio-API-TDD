@@ -1,5 +1,4 @@
 import { Application } from 'express';
-import { loggerMiddleware } from '../middlewares/loggerMiddleware';
 import {
     addNewUser,
     getUsers,
@@ -7,9 +6,21 @@ import {
     updateUser,
     deleteUser,
     loginUser,
-    updatePassword, getContacts, deleteContact, searchUsers, getPhotoFromUser, forgotPassword
+    updatePassword,
+    getContacts,
+    deleteContact,
+    searchUsers,
+    getPhotoFromUser,
+    forgotPassword,
+    validateEmail,
+    checkIfEmailIsValidated
 } from '../services/userService';
-import {createNewSession, createSessionToRecoverPassword, jwtMiddleware} from "../middlewares/jwtMiddleware";
+import {
+    createNewSession,
+    createSessionToRecoverPassword,
+    jwtMiddleware,
+    createValidateEmailSession
+} from "../middlewares/jwtMiddleware";
 
 const routes = (app: Application) => {
 
@@ -18,7 +29,7 @@ const routes = (app: Application) => {
         .get(getUsers)
         
         // sign up user
-        .post(addNewUser,createNewSession);
+        .post(addNewUser,createValidateEmailSession);
 
     app.route('/search/users')
         // can search for users
@@ -30,34 +41,37 @@ const routes = (app: Application) => {
 
     app.route('/manage/users/:userID')
         // get a specific user
-        .get(jwtMiddleware, getUserWithID)
+        .get(jwtMiddleware, checkIfEmailIsValidated, getUserWithID)
 
         // updating a specific user
-        .patch(jwtMiddleware,updateUser)
+        .patch(jwtMiddleware,checkIfEmailIsValidated,updateUser)
 
         // deleting a specific user
-        .delete(jwtMiddleware,deleteUser)
+        .delete(jwtMiddleware,checkIfEmailIsValidated,deleteUser)
 
     app.route('/manage/contacts/:userID')
         // a User can see its contacts
-        .get(jwtMiddleware,getContacts)
+        .get(jwtMiddleware,checkIfEmailIsValidated,getContacts)
 
         // a User can delete a contact
-        .delete(jwtMiddleware,deleteContact)
+        .delete(jwtMiddleware,checkIfEmailIsValidated,deleteContact)
 
 
     app.route("/login/users")
 
         // User is trying to log in.
-        .post(loginUser,createNewSession)
+        .post(checkIfEmailIsValidated,loginUser,createNewSession)
 
         // User updates the password.
-        .patch(jwtMiddleware,updatePassword,createNewSession)
+        .patch(jwtMiddleware,checkIfEmailIsValidated,updatePassword,createNewSession)
 
     app.route("/login/reset/password")
         // User forgot password.
-        .post(forgotPassword,createSessionToRecoverPassword)
+        .post(checkIfEmailIsValidated,forgotPassword,createSessionToRecoverPassword)
 
+    app.route("/validate/email")
+        // To validate the email of a user.
+        .post(jwtMiddleware,validateEmail)
 
 }
 
