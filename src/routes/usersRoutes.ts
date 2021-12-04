@@ -7,7 +7,7 @@ import {
     updateUser,
     deleteUser,
     loginUser,
-    updatePassword, getContacts, deleteContact, searchUsers
+    updatePassword, getContacts, deleteContact, searchUsers, getPhotoFromUser
 } from '../services/userService';
 import {createNewSession, jwtMiddleware} from "../middlewares/jwtMiddleware";
 
@@ -23,6 +23,10 @@ const routes = (app: Application) => {
     app.route('/search/users')
         // can search for users
         .get(searchUsers)
+
+    app.route('/resources/photo/:username')
+        // can get the photo from a user
+        .get(getPhotoFromUser)
 
     app.route('/manage/users/:userID')
         // get a specific user

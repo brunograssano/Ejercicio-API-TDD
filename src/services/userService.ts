@@ -248,3 +248,30 @@ export const searchUsers: RequestHandler = (request, response) => {
         response.json(usersResponse);
     });
 }
+
+export const getPhotoFromUser: RequestHandler = (request, response) => {
+    User.find({username: request.params.username}, {_id:0,username:1,photo:1},null,
+        (error, users) => {
+        if (error) {
+            response.send(error);
+            return;
+        }
+
+        if (users.length == 0){
+            response.status(400).json({message: "There are no users with that username"});
+            return;
+        }
+
+        if (!users[0].photo){
+            response.json({message: "There is no photo"});
+            return;
+        }
+
+        if (!users[0].photo.public){
+            response.json({message: "The photo is private"});
+            return;
+        }
+
+        response.json({message:"Photo sent successfully",payload:{username:users[0].username,photo:users[0].photo}});
+    });
+}
