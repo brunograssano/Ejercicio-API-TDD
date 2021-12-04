@@ -13,7 +13,7 @@ import {
     getPhotoFromUser,
     forgotPassword,
     validateEmail,
-    checkIfEmailIsValidated
+    checkIfEmailIsValidatedById, checkIfEmailIsValidatedByUsername, checkIfEmailIsValidatedByUsernameInHeader
 } from '../services/userService';
 import {
     createNewSession,
@@ -21,6 +21,7 @@ import {
     jwtMiddleware,
     createValidateEmailSession
 } from "../middlewares/jwtMiddleware";
+import {loggerMiddleware} from "../middlewares/loggerMiddleware";
 
 const routes = (app: Application) => {
 
@@ -41,33 +42,33 @@ const routes = (app: Application) => {
 
     app.route('/manage/users/:userID')
         // get a specific user
-        .get(jwtMiddleware, checkIfEmailIsValidated, getUserWithID)
+        .get(jwtMiddleware, checkIfEmailIsValidatedById, getUserWithID)
 
         // updating a specific user
-        .patch(jwtMiddleware,checkIfEmailIsValidated,updateUser)
+        .patch(jwtMiddleware,checkIfEmailIsValidatedById,updateUser)
 
         // deleting a specific user
-        .delete(jwtMiddleware,checkIfEmailIsValidated,deleteUser)
+        .delete(jwtMiddleware,checkIfEmailIsValidatedById,deleteUser)
 
     app.route('/manage/contacts/:userID')
         // a User can see its contacts
-        .get(jwtMiddleware,checkIfEmailIsValidated,getContacts)
+        .get(jwtMiddleware,checkIfEmailIsValidatedById,getContacts)
 
         // a User can delete a contact
-        .delete(jwtMiddleware,checkIfEmailIsValidated,deleteContact)
+        .delete(jwtMiddleware,checkIfEmailIsValidatedById,deleteContact)
 
 
     app.route("/login/users")
 
         // User is trying to log in.
-        .post(checkIfEmailIsValidated,loginUser,createNewSession)
+        .post(loginUser,checkIfEmailIsValidatedByUsernameInHeader,createNewSession)
 
         // User updates the password.
-        .patch(jwtMiddleware,checkIfEmailIsValidated,updatePassword,createNewSession)
+        .patch(jwtMiddleware,checkIfEmailIsValidatedById,loggerMiddleware,updatePassword,createNewSession)
 
     app.route("/login/reset/password")
         // User forgot password.
-        .post(checkIfEmailIsValidated,forgotPassword,createSessionToRecoverPassword)
+        .post(checkIfEmailIsValidatedByUsername,forgotPassword,createSessionToRecoverPassword)
 
     app.route("/validate/email")
         // To validate the email of a user.

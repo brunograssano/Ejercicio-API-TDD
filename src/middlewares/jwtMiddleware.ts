@@ -70,5 +70,5 @@ export function createValidateEmailSession(request: Request, response: Response)
     console.log('DEBUG - Code to validate email sent to: ' + response.locals.email)
     console.log('DEBUG - Token sent: ' + session.token)
 
-    response.status(201).json({message:"User sign up successful, please validate email to continue", DEBUG:session});
+    response.status(201).send({message:"User sign up successful, please validate email to continue", DEBUG:session});
 }

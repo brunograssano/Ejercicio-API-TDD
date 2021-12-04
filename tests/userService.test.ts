@@ -15,11 +15,23 @@ describe("User Service Tests", () => {
         chai.request(baseUrl)
             .post('/users')
             .auth('test','test', {type:"basic"})
-            .send({'email':'test-email@test.com', 'firstName':'test', 'lastName':'test'})
+            .send({'email':{'value':'test-email@test.com','public':false},
+                'firstName':{'value':'test','public':true},
+                'lastName':{'value':'test','public':true}})
             .end((error , response) => {
                 expect(response.status).equal(201);
-                expect(response.body.session).to.have.property("token");
-                token = response.body.session.token;
+                token = response.body.DEBUG.token;
+                done();
+            });
+    });
+
+    it('Should validate the email of the user', (done) => {
+        chai.request(baseUrl)
+            .post('/validate/email')
+            .set('JWT-Token',token)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal("Email validated successfully, please login to continue");
                 done();
             });
     });
@@ -36,9 +48,9 @@ describe("User Service Tests", () => {
             .set('JWT-Token',token)
             .end((error , response) => {
                 expect(response.status).equal(200);
-                expect(response.body.email).equal('test-email@test.com');
-                expect(response.body.firstName).equal('test');
-                expect(response.body.lastName).equal('test');
+                expect(response.body.email.value).equal('test-email@test.com');
+                expect(response.body.firstName.value).equal('test');
+                expect(response.body.lastName.value).equal('test');
                 expect(response.body.username).equal('test');
                 expect(response.body._id).equal(userSession.id);
                 done();
@@ -49,7 +61,10 @@ describe("User Service Tests", () => {
         chai.request(baseUrl)
             .patch('/manage/users/' + userSession.id)
             .set('JWT-Token',token)
-            .send({'firstName':'test1', 'lastName':'test2', 'nickname':'testNick', 'photo': {'value':'testPhotoInBase64','public':true}})
+            .send({'firstName':{'value':'test1','public':true},
+                'lastName':{'value':'test2','public':true},
+                'nickname':{'value':'testNick','public':true},
+                'photo': {'value':'testPhotoInBase64','public':true}})
             .end((error , response) => {
                 expect(response.status).equal(200);
                 expect(response.body.message).equal('Successfully updated user');
@@ -63,12 +78,10 @@ describe("User Service Tests", () => {
             .set('JWT-Token',token)
             .end((error , response) => {
                 expect(response.status).equal(200);
-                expect(response.body.email).equal('test-email@test.com');
-                expect(response.body.firstName).equal('test1');
-                expect(response.body.lastName).equal('test2');
-                expect(response.body.nickname).equal('testNick');
-                expect(response.body.photo.value).equal('testPhotoInBase64');
-                expect(response.body.photo.public).equal(true);
+                expect(response.body.email.value).equal('test-email@test.com');
+                expect(response.body.firstName.value).equal('test1');
+                expect(response.body.lastName.value).equal('test2');
+                expect(response.body.nickname.value).equal('testNick');
                 done();
             });
     });
@@ -134,9 +147,10 @@ describe("User Service Tests", () => {
         chai.request(baseUrl)
             .patch('/login/users')
             .auth('test','testNewPassword', {type:"basic"})
+            .set('JWT-Token',token)
             .end((error , response) => {
-                expect(response.status).equal(201);
                 expect(response.body.message).equal('Successfully updated password');
+                expect(response.status).equal(201);
                 expect(response.body.session).to.have.property("token");
                 done();
             });
@@ -146,9 +160,10 @@ describe("User Service Tests", () => {
         chai.request(baseUrl)
             .post('/login/users')
             .auth('test','testNewPassword', {type:"basic"})
+            .set('JWT-Token',token)
             .end((error , response) => {
-                expect(response.status).equal(201);
                 expect(response.body.message).equal('Successfully logged in');
+                expect(response.status).equal(201);
                 expect(response.body.session).to.have.property("token");
                 done();
             });
