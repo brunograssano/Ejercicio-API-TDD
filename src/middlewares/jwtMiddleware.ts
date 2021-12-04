@@ -57,3 +57,12 @@ export function createNewSession(request: Request, response: Response) {
     response.status(201).json({message:response.locals.message, session: session});
 }
 
+export function createSessionToRecoverPassword(request: Request, response: Response) {
+    const session = encodeSession(SECRET_KEY, { id:response.locals.id, username: response.locals.username});
+    console.log('DEBUG - Code to reset password sent to email: ' + response.locals.email)
+    console.log('DEBUG - Token sent: ' + session.token)
+
+    response.json({message:"Password reset link sent to email successfully"});
+}
+
+

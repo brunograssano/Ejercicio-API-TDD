@@ -7,9 +7,9 @@ import {
     updateUser,
     deleteUser,
     loginUser,
-    updatePassword, getContacts, deleteContact, searchUsers, getPhotoFromUser
+    updatePassword, getContacts, deleteContact, searchUsers, getPhotoFromUser, forgotPassword
 } from '../services/userService';
-import {createNewSession, jwtMiddleware} from "../middlewares/jwtMiddleware";
+import {createNewSession, createSessionToRecoverPassword, jwtMiddleware} from "../middlewares/jwtMiddleware";
 
 const routes = (app: Application) => {
 
@@ -36,14 +36,14 @@ const routes = (app: Application) => {
         .patch(jwtMiddleware,updateUser)
 
         // deleting a specific user
-        .delete(jwtMiddleware,deleteUser); // otras funciones que se encargan de la respuesta
+        .delete(jwtMiddleware,deleteUser)
 
     app.route('/manage/contacts/:userID')
         // a User can see its contacts
         .get(jwtMiddleware,getContacts)
 
         // a User can delete a contact
-        .delete(jwtMiddleware,deleteContact) // separar la accion, que se encapsule mas, recibe y devuelve objetos
+        .delete(jwtMiddleware,deleteContact)
 
 
     app.route("/login/users")
@@ -51,8 +51,12 @@ const routes = (app: Application) => {
         // User is trying to log in.
         .post(loginUser,createNewSession)
 
+        // User updates the password.
+        .patch(jwtMiddleware,updatePassword,createNewSession)
+
+    app.route("/login/reset/password")
         // User forgot password.
-        .patch(updatePassword,createNewSession);
+        .post(forgotPassword,createSessionToRecoverPassword)
 
 
 }

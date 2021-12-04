@@ -275,3 +275,27 @@ export const getPhotoFromUser: RequestHandler = (request, response) => {
         response.json({message:"Photo sent successfully",payload:{username:users[0].username,photo:users[0].photo}});
     });
 }
+
+export const forgotPassword: RequestHandler = (request, response,next) => {
+    User.find({username: request.body.username}, {_id:1,email:1,username:1},null,
+        (error, users) => {
+            if (error) {
+                response.send(error);
+                return;
+            }
+            if (users.length == 0){
+                response.status(400).json({message: "There are no users with that username"});
+                return;
+            }
+
+            response.locals = {
+                ...response.locals,
+                username: users[0].username,
+                id: users[0].id,
+                email: users[0].email.value,
+            };
+
+
+            next()
+        });
+}
