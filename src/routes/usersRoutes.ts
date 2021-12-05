@@ -1,16 +1,9 @@
 import { Application } from 'express';
 import {
-    addNewUser,
     getUsers,
     getUserWithID,
-    updateUser,
-    deleteUser,
-    loginUser,
-    updatePassword,
     searchUsers,
     getPhotoFromUser,
-    forgotPassword,
-    changeMainEmail
 } from '../services/userService';
 
 import {
@@ -34,6 +27,16 @@ import {
     inviteContact,
     sendMessageToContact
 } from "../services/contactManagement";
+
+import {
+    addNewUser,
+    changeMainEmail,
+    deleteUser,
+    forgotPassword,
+    loginUser,
+    updatePassword,
+    updateUser
+} from "../services/userAccountManagment";
 
 const routes = (app: Application) => {
 
