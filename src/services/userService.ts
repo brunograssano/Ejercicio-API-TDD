@@ -383,7 +383,46 @@ function addToContactList(sender : string, newContact : string) {
 export const inviteContact: RequestHandler = (request, response,next) => {
     let contact = request.body.contactUsername;
     let sender = response.locals.session.username;
-    addToPendingList(contact, sender); // todo check for errors before
+    addToPendingList(contact, sender);
+    next();
+}
+
+export const checkContactExists: RequestHandler = (request, response,next) => {
+    let accepter = response.locals.session.username;
+    let sender = request.body.contactUsername;
+    User.findOne({username: accepter}, {pendingContacts:1},null,
+        (error,user) => {
+            printMongooseError(error,null);
+            if(user && user.pendingContacts.includes(sender)){
+                next()
+                return;
+            }
+            response.status(400).send({message:"Contact invite doesn't exists."})
+        });
+}
+
+export const checkIfPreviouslyInvited: RequestHandler = (request, response,next) => {
+    let sender = response.locals.session.username;
+    let contact = request.body.contactUsername;
+    User.findOne({username: contact}, {pendingContacts:1},null,
+        (error,user) => {
+            printMongooseError(error,null);
+            if(user && !user.pendingContacts.includes(sender)){
+                next()
+                return;
+            }
+            response.status(400).send({message:"Cannot invite again a contact"})
+        });
+}
+
+
+export const checkIsAValidContact: RequestHandler = (request, response,next) => {
+    let sender = response.locals.session.username;
+    let contact = request.body.contactUsername;
+    if (sender == contact){
+        response.status(400).send({message:"Cannot invite yourself"})
+        return;
+    }
     next();
 }
 

@@ -16,7 +16,12 @@ import {
     checkIfEmailIsValidatedById,
     checkIfEmailIsValidatedByUsername,
     checkIfEmailIsValidatedByUsernameInHeader,
-    inviteContact, acceptContact, sendMessageToContact
+    inviteContact,
+    acceptContact,
+    sendMessageToContact,
+    checkContactExists,
+    checkIfPreviouslyInvited,
+    checkIsAValidContact
 } from '../services/userService';
 import {
     createNewSession,
@@ -33,7 +38,8 @@ const routes = (app: Application) => {
         .get(getUsers)
         
         // sign up user
-        .post(addNewUser,createValidateEmailSession);
+        .post(addNewUser,
+            createValidateEmailSession);
 
     app.route('/search/users')
         // can search for users
@@ -45,44 +51,71 @@ const routes = (app: Application) => {
 
     app.route('/manage/users/:userID')
         // get a specific user
-        .get(jwtMiddleware, checkIfEmailIsValidatedById, getUserWithID)
+        .get(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            getUserWithID)
 
         // updating a specific user
-        .patch(jwtMiddleware,checkIfEmailIsValidatedById,updateUser)
+        .patch(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            updateUser)
 
         // deleting a specific user
-        .delete(jwtMiddleware,checkIfEmailIsValidatedById,deleteUser)
+        .delete(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            deleteUser)
 
     app.route('/manage/contacts/:userID')
         // a User can see its contacts
-        .get(jwtMiddleware,checkIfEmailIsValidatedById,getContacts)
+        .get(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            getContacts)
 
         // a User can delete a contact
-        .delete(jwtMiddleware,checkIfEmailIsValidatedById,deleteContact)
+        .delete(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            deleteContact)
 
     app.route("/invite/contact")
         // To validate the email of a user.
-        .post(jwtMiddleware,inviteContact,sendMessageToContact)
+        .post(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            checkIsAValidContact,
+            checkIfPreviouslyInvited,
+            inviteContact,
+            sendMessageToContact)
 
     app.route("/accept/contact")
         // To validate the email of a user.
-        .post(jwtMiddleware,acceptContact)
+        .post(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            checkIsAValidContact,
+            checkContactExists,
+            acceptContact)
 
     app.route("/login/users")
 
         // User is trying to log in.
-        .post(loginUser,checkIfEmailIsValidatedByUsernameInHeader,createNewSession)
+        .post(loginUser,
+            checkIfEmailIsValidatedByUsernameInHeader,
+            createNewSession)
 
         // User updates the password.
-        .patch(jwtMiddleware,checkIfEmailIsValidatedById,updatePassword,createNewSession)
+        .patch(jwtMiddleware,
+            checkIfEmailIsValidatedById,
+            updatePassword,
+            createNewSession)
 
     app.route("/login/reset/password")
         // User forgot password.
-        .post(checkIfEmailIsValidatedByUsername,forgotPassword,createSessionToRecoverPassword)
+        .post(checkIfEmailIsValidatedByUsername,
+            forgotPassword,
+            createSessionToRecoverPassword)
 
     app.route("/validate/email")
         // To validate the email of a user.
-        .post(jwtMiddleware,validateEmail)
+        .post(jwtMiddleware,
+            validateEmail)
 
 }
 
