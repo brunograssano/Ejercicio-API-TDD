@@ -1,11 +1,14 @@
 import {NextFunction, RequestHandler} from "express";
 import {Callback, model} from 'mongoose';
 import {UserSchema, UserView} from '../models/userModel';
-import {basicAuth, SALT_ROUNDS, validEmail} from "./authService";
+import {basicAuth, SALT_ROUNDS} from "./authService";
 import bcrypt from 'bcrypt'
 import {getSearchQuery} from "./queryServices";
+import {getSignUpData, getUpdatedDataFromUser} from "./bodyCleaner";
 
 const User = model('User', UserSchema);
+
+
 
 export const addNewUser: RequestHandler = (request, response,next: NextFunction) => {
     const credentials = basicAuth(request.headers.authorization as string);
@@ -13,8 +16,7 @@ export const addNewUser: RequestHandler = (request, response,next: NextFunction)
     bcrypt.hash(credentials[1],SALT_ROUNDS,(error, hash) => {
         request.body.username = username;
         request.body.password = hash;
-
-        let newUser = new User(request.body);
+        let newUser = new User(getSignUpData(request.body));
         newUser.id = newUser._id;
         newUser.save((error, user) => {
             if (error) {
@@ -44,12 +46,12 @@ export const getUsers: RequestHandler = (request, response) => {
 }
 
 export const getUserWithID: RequestHandler = (request, response) => {
-    User.findById(response.locals.session.id, {photo:0,__v:0}, null, (error, user) => {
+    User.findById(response.locals.session.id, {photo:0,__v:0,password:0}, null, (error, user) => {
         if (error) {
             response.send(error);
             return;
         }
-        response.json(user);
+        response.json({message:"User sent successfully.",user:user});
     });
 }
 
@@ -73,7 +75,7 @@ export const changeMainEmail: RequestHandler = (request, response,next) => {
 export const updateUser: RequestHandler = (request, response) => {
     User.findOneAndUpdate(
         { _id: response.locals.session.id},
-        request.body,
+        getUpdatedDataFromUser(request.body),
         { new: true, useFindAndModify: false },
         (error, user) => {
             if (error) {

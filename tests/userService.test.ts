@@ -48,11 +48,11 @@ describe("User Service Tests", () => {
             .set('JWT-Token',token)
             .end((error , response) => {
                 expect(response.status).equal(200);
-                expect(response.body.email.value).equal('test-email@test.com');
-                expect(response.body.firstName.value).equal('test');
-                expect(response.body.lastName.value).equal('test');
-                expect(response.body.username).equal('test');
-                expect(response.body._id).equal(userSession.id);
+                expect(response.body.user.email.value).equal('test-email@test.com');
+                expect(response.body.user.firstName.value).equal('test');
+                expect(response.body.user.lastName.value).equal('test');
+                expect(response.body.user.username).equal('test');
+                expect(response.body.user._id).equal(userSession.id);
                 done();
             });
     });
@@ -78,10 +78,10 @@ describe("User Service Tests", () => {
             .set('JWT-Token',token)
             .end((error , response) => {
                 expect(response.status).equal(200);
-                expect(response.body.email.value).equal('test-email@test.com');
-                expect(response.body.firstName.value).equal('test1');
-                expect(response.body.lastName.value).equal('test2');
-                expect(response.body.nickname.value).equal('testNick');
+                expect(response.body.user.email.value).equal('test-email@test.com');
+                expect(response.body.user.firstName.value).equal('test1');
+                expect(response.body.user.lastName.value).equal('test2');
+                expect(response.body.user.nickname.value).equal('testNick');
                 done();
             });
     });

@@ -6,7 +6,3 @@ export const basicAuth = (authorization : string): string[] => {
     const credentials = atob(encoded[1]).split(':');
     return credentials;
 };
-
-export const validEmail = (email : string) : boolean => {
-    return false;
-}
