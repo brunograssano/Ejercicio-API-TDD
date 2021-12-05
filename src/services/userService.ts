@@ -53,13 +53,24 @@ export const getUserWithID: RequestHandler = (request, response) => {
     });
 }
 
+
+export const changeMainEmail: RequestHandler = (request, response,next) => {
+    let mainEmail = request.body.email
+    User.findOneAndUpdate(
+        { _id: response.locals.session.id},
+        {"email.value":mainEmail,"email.validated":false},
+        { new: true, useFindAndModify: false },
+        (error, user) => {
+            if (error) {
+                response.send(error);
+                return;
+            }
+            next();
+        }
+    );
+}
+
 export const updateUser: RequestHandler = (request, response) => {
-
-    if(request.body.email && !validEmail(request.body.email)){
-        response.status(400).send({ message: 'Not a valid email'});
-        return;
-    }
-
     User.findOneAndUpdate(
         { _id: response.locals.session.id},
         request.body,

@@ -21,7 +21,7 @@ import {
     sendMessageToContact,
     checkContactExists,
     checkIfPreviouslyInvited,
-    checkIsAValidContact
+    checkIsAValidContact, changeMainEmail
 } from '../services/userService';
 import {
     createNewSession,
@@ -48,6 +48,12 @@ const routes = (app: Application) => {
     app.route('/resources/photo/:username')
         // can get the photo from a user
         .get(getPhotoFromUser)
+
+    app.route('/update/main/email')
+        // The user can change the main email, it must be validated
+        .patch(jwtMiddleware,
+            changeMainEmail,
+            createValidateEmailSession)
 
     app.route('/manage/users/:userID')
         // get a specific user
