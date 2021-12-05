@@ -12,10 +12,6 @@ import {
     searchUsers,
     getPhotoFromUser,
     forgotPassword,
-    validateEmail,
-    checkIfEmailIsValidatedById,
-    checkIfEmailIsValidatedByUsername,
-    checkIfEmailIsValidatedByUsernameInHeader,
     inviteContact,
     acceptContact,
     sendMessageToContact,
@@ -30,6 +26,11 @@ import {
     createValidateEmailSession
 } from "../middlewares/jwtMiddleware";
 import {loggerMiddleware} from "../middlewares/loggerMiddleware";
+import {
+    checkIfEmailIsValidatedById,
+    checkIfEmailIsValidatedByUsername,
+    checkIfEmailIsValidatedByUsernameInHeader, validateEmail
+} from "../services/emailValidation";
 
 const routes = (app: Application) => {
 
