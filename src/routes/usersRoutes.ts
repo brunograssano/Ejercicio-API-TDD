@@ -13,7 +13,10 @@ import {
     getPhotoFromUser,
     forgotPassword,
     validateEmail,
-    checkIfEmailIsValidatedById, checkIfEmailIsValidatedByUsername, checkIfEmailIsValidatedByUsernameInHeader
+    checkIfEmailIsValidatedById,
+    checkIfEmailIsValidatedByUsername,
+    checkIfEmailIsValidatedByUsernameInHeader,
+    inviteContact, acceptContact, sendMessageToContact
 } from '../services/userService';
 import {
     createNewSession,
@@ -57,6 +60,13 @@ const routes = (app: Application) => {
         // a User can delete a contact
         .delete(jwtMiddleware,checkIfEmailIsValidatedById,deleteContact)
 
+    app.route("/invite/contact")
+        // To validate the email of a user.
+        .post(jwtMiddleware,inviteContact,sendMessageToContact)
+
+    app.route("/accept/contact")
+        // To validate the email of a user.
+        .post(jwtMiddleware,acceptContact)
 
     app.route("/login/users")
 
@@ -64,7 +74,7 @@ const routes = (app: Application) => {
         .post(loginUser,checkIfEmailIsValidatedByUsernameInHeader,createNewSession)
 
         // User updates the password.
-        .patch(jwtMiddleware,checkIfEmailIsValidatedById,loggerMiddleware,updatePassword,createNewSession)
+        .patch(jwtMiddleware,checkIfEmailIsValidatedById,updatePassword,createNewSession)
 
     app.route("/login/reset/password")
         // User forgot password.

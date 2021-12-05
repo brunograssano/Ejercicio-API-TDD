@@ -88,12 +88,12 @@ export const loginUser: RequestHandler =  (request, response,next: NextFunction)
     const credentials = basicAuth(request.headers.authorization  as string);
     const username = credentials[0];
 
-    User.find({username: username}, (error, user) => {
-            if (user.length==0) {
+    User.findOne({username: username}, null,null,(error, user) => {
+            if (!user) {
                 response.status(404).send({message:"User not found"});
                 return;
             }
-            bcrypt.compare(credentials[1],user[0].password,(error, areTheSame) => {
+            bcrypt.compare(credentials[1],user.password,(error, areTheSame) => {
                 if (error) {
                     response.send(error);
                     return;
@@ -105,8 +105,8 @@ export const loginUser: RequestHandler =  (request, response,next: NextFunction)
 
                 response.locals = {
                     ...response.locals,
-                    username: user[0].username,
-                    id: user[0].id,
+                    username: user.username,
+                    id: user.id,
                     message: "Successfully logged in"
                 };
 
@@ -255,49 +255,49 @@ export const searchUsers: RequestHandler = (request, response) => {
 }
 
 export const getPhotoFromUser: RequestHandler = (request, response) => {
-    User.find({username: request.params.username}, {_id:0,username:1,photo:1},null,
-        (error, users) => {
+    User.findOne({username: request.params.username}, {_id:0,username:1,photo:1},null,
+        (error, user) => {
         if (error) {
             response.send(error);
             return;
         }
 
-        if (users.length == 0){
+        if (!user){
             response.status(400).json({message: "There are no users with that username"});
             return;
         }
 
-        if (!users[0].photo){
+        if (!user.photo){
             response.json({message: "There is no photo"});
             return;
         }
 
-        if (!users[0].photo.public){
+        if (!user.photo.public){
             response.json({message: "The photo is private"});
             return;
         }
 
-        response.json({message:"Photo sent successfully",payload:{username:users[0].username,photo:users[0].photo}});
+        response.json({message:"Photo sent successfully",payload:{username:user.username,photo:user.photo}});
     });
 }
 
 export const forgotPassword: RequestHandler = (request, response,next) => {
-    User.find({username: request.body.username}, {_id:1,email:1,username:1},null,
-        (error, users) => {
+    User.findOne({username: request.body.username}, {_id:1,email:1,username:1},null,
+        (error, user) => {
             if (error) {
                 response.send(error);
                 return;
             }
-            if (users.length == 0){
+            if (!user){
                 response.status(400).json({message: "There are no users with that username"});
                 return;
             }
 
             response.locals = {
                 ...response.locals,
-                username: users[0].username,
-                id: users[0].id,
-                email: users[0].email.value,
+                username: user.username,
+                id: user.id,
+                email: user.email.value,
             };
 
 
@@ -318,16 +318,16 @@ export const validateEmail: RequestHandler = (request, response) => {
 }
 
 const checkIfEmailIsValidated: RequestHandler = (request, response, next) => {
-    User.find(response.locals.query, {email: 1}, null,
-        (error, users) => {
+    User.findOne(response.locals.query, {email: 1}, null,
+        (error, user) => {
             if (error) {
                 response.send(error);
                 return;
             }
-            if (!users[0]) {
+            if (!user) {
                 response.status(400).send({message: "No user found"});
                 return;
-            } else if (!users[0].email.validated) {
+            } else if (!user.email.validated) {
                 response.status(400).send({message: "Validate the email to continue"});
                 return;
             }
@@ -360,4 +360,34 @@ export const checkIfEmailIsValidatedByUsernameInHeader: RequestHandler = (reques
         query: {username:username}
     }
     checkIfEmailIsValidated(request,response,next)
+}
+
+function addToPendingList(contact : string, sender : string) {
+    User.updateOne({username: contact}, {$push: {pendingContacts: sender}},null,
+        (error) => {
+        if(error){
+            console.log(error)
+        }
+    });
+}
+
+export const inviteContact: RequestHandler = (request, response,next) => {
+    let contact = request.body.contactUsername;
+    let sender = response.locals.session.username;
+    addToPendingList(contact, sender); // todo check for errors before
+    next();
+}
+
+export const acceptContact: RequestHandler = (request, response) => {
+
+}
+
+export const sendMessageToContact: RequestHandler = (request, response) => {
+    let contact = request.body.contactUsername;
+    let message = request.body.message;
+    let sender = response.locals.session.username;
+    console.log("DEBUG: Contact invitation sent to user: " + contact);
+    console.log("DEBUG: Message: " + message);
+    console.log("DEBUG: Sent from: " + sender);
+    response.json({message:"Contact invite sent successfully."})
 }

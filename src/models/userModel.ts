@@ -35,6 +35,7 @@ type User = {
     preferences: PreferenceField[];
     secondaryEmails: UniqueValueField[];
     contacts: MultipleValuesInField;
+    pendingContacts: string[];
     created_date: Date;
 }
 
@@ -49,6 +50,7 @@ export type UserView = {
     preferences?: {preferenceType: string; value:string;}[];
     secondaryEmails?: string[];
     contacts?: string[];
+    pendingContacts?: string[];
 }
 
 export const UserSchema = new Schema<User>({
@@ -85,7 +87,7 @@ export const UserSchema = new Schema<User>({
         required: [true, 'Enter a username']
     },
     photo: {
-        type: { // No devolver, crear un endpoint especifico para el recurso
+        type: {
             value: String,
             public: Boolean,
         },
@@ -116,10 +118,11 @@ export const UserSchema = new Schema<User>({
             public: Boolean
         }
     ],
-    contacts: { // es como un follow, se mandaria un codigo
-        name: [], // revisar crear un objeto que tenga el nombre y el estado, pendiente o no y un codigo que se usa para aceptar (otro endpoint el aceptar)
+    contacts: {
+        name: [],
         public: Boolean,
     },
+    pendingContacts: [],
 
     created_date: {
         type: Date,
