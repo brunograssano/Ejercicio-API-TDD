@@ -57,6 +57,17 @@ describe("User Service Tests", () => {
             });
     });
 
+    it('Should return that the user has no photo', (done) => {
+        chai.request(baseUrl)
+            .get('/resources/photo/test')
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('There is no photo');
+                done();
+            });
+    });
+
+
     it('Should update the information about the user', (done) => {
         chai.request(baseUrl)
             .patch('/manage/users/' + userSession.id)
@@ -82,6 +93,39 @@ describe("User Service Tests", () => {
                 expect(response.body.user.firstName.value).equal('test1');
                 expect(response.body.user.lastName.value).equal('test2');
                 expect(response.body.user.nickname.value).equal('testNick');
+                done();
+            });
+    });
+
+    it('Should return the photo of the user', (done) => {
+        chai.request(baseUrl)
+            .get('/resources/photo/test')
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Photo sent successfully');
+                expect(response.body.payload.photo).equal('testPhotoInBase64');
+                done();
+            });
+    });
+
+    it('Should the photo of the user private', (done) => {
+        chai.request(baseUrl)
+            .patch('/manage/users/' + userSession.id)
+            .set('JWT-Token',token)
+            .send({'photo': {'public':false}})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Successfully updated user');
+                done();
+            });
+    });
+
+    it('Should return that the photo is private', (done) => {
+        chai.request(baseUrl)
+            .get('/resources/photo/test')
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('The photo is private');
                 done();
             });
     });

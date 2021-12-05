@@ -66,6 +66,6 @@ export const getPhotoFromUser: RequestHandler = (request, response) => {
             return;
         }
 
-        response.json({message:"Photo sent successfully",payload:{username:user.username,photo:user.photo}});
+        response.json({message:"Photo sent successfully",payload:{username:user.username,photo:user.photo.value}});
     });
 }
