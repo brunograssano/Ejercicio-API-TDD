@@ -7,30 +7,33 @@ import {
     deleteUser,
     loginUser,
     updatePassword,
-    getContacts,
-    deleteContact,
     searchUsers,
     getPhotoFromUser,
     forgotPassword,
-    inviteContact,
-    acceptContact,
-    sendMessageToContact,
-    checkContactExists,
-    checkIfPreviouslyInvited,
-    checkIsAValidContact, changeMainEmail
+    changeMainEmail
 } from '../services/userService';
+
 import {
     createNewSession,
     createSessionToRecoverPassword,
     jwtMiddleware,
     createValidateEmailSession
 } from "../middlewares/jwtMiddleware";
-import {loggerMiddleware} from "../middlewares/loggerMiddleware";
+
 import {
     checkIfEmailIsValidatedById,
     checkIfEmailIsValidatedByUsername,
     checkIfEmailIsValidatedByUsernameInHeader, validateEmail
 } from "../services/emailValidation";
+
+import {
+    acceptContact,
+    checkContactInviteExists,
+    checkIfPreviouslyInvited,
+    checkIsAValidContact, deleteContact, getContacts,
+    inviteContact,
+    sendMessageToContact
+} from "../services/contactManagement";
 
 const routes = (app: Application) => {
 
@@ -97,7 +100,7 @@ const routes = (app: Application) => {
         .post(jwtMiddleware,
             checkIfEmailIsValidatedById,
             checkIsAValidContact,
-            checkContactExists,
+            checkContactInviteExists,
             acceptContact)
 
     app.route("/login/users")
