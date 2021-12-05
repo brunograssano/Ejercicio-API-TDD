@@ -1,5 +1,5 @@
 import {NextFunction, RequestHandler} from "express";
-import { model } from 'mongoose';
+import {Callback, model} from 'mongoose';
 import {UserSchema, UserView} from '../models/userModel';
 import {basicAuth, SALT_ROUNDS, validEmail} from "./authService";
 import bcrypt from 'bcrypt'
@@ -362,13 +362,22 @@ export const checkIfEmailIsValidatedByUsernameInHeader: RequestHandler = (reques
     checkIfEmailIsValidated(request,response,next)
 }
 
+const printMongooseError: Callback = (error) => {
+    if(error){
+        console.log(error)
+    }
+}
+
 function addToPendingList(contact : string, sender : string) {
-    User.updateOne({username: contact}, {$push: {pendingContacts: sender}},null,
-        (error) => {
-        if(error){
-            console.log(error)
-        }
-    });
+    User.updateOne({username: contact}, {$push: {pendingContacts: sender}},null,printMongooseError);
+}
+
+function removeFromPendingList(contact : string, sender : string) {
+    User.updateOne({username: contact}, {$pull: {pendingContacts: sender}},null, printMongooseError);
+}
+
+function addToContactList(sender : string, newContact : string) {
+    User.updateOne({username: sender}, {$push: {"contacts.name": newContact}},null, printMongooseError);
 }
 
 export const inviteContact: RequestHandler = (request, response,next) => {
@@ -379,7 +388,11 @@ export const inviteContact: RequestHandler = (request, response,next) => {
 }
 
 export const acceptContact: RequestHandler = (request, response) => {
-
+    let accepter = response.locals.session.username;
+    let sender = request.body.contactUsername;
+    addToContactList(sender,accepter);
+    removeFromPendingList(accepter, sender);
+    response.json({message:"Contact accepted successfully."})
 }
 
 export const sendMessageToContact: RequestHandler = (request, response) => {
