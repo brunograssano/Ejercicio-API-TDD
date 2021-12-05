@@ -436,7 +436,23 @@ export const checkIsAValidContact: RequestHandler = (request, response,next) => 
         response.status(400).send({message:"Cannot invite yourself"})
         return;
     }
-    next();
+
+    User.exists({username:contact},(error,exists)=>{
+        printMongooseError(error,null)
+        if (!exists){
+            response.status(400).send({message:"User doesn't exists"})
+            return;
+        }
+        User.findOne({username: sender}, {contacts:1},null,
+            (error,user) => {
+                printMongooseError(error,null);
+                if(user && !user.contacts.name.includes(contact)){
+                    next()
+                    return;
+                }
+                response.status(400).send({message:"Already a contact"})
+            });
+    })
 }
 
 export const acceptContact: RequestHandler = (request, response) => {
