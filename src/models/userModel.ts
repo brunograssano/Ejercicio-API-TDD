@@ -22,7 +22,7 @@ type EmailField = {
     validated: boolean;
 }
 
-type User = {
+export type User = {
     id:string
     email: EmailField;
     password: string;

@@ -1,3 +1,5 @@
+import {User, UserView} from "../models/userModel";
+import {HydratedDocument} from "mongoose";
 
 interface Filters {
     username?:Object;
@@ -79,3 +81,46 @@ export const getSearchQuery = (queryValues: Object) : Object => {
     return query;
 }
 
+export function getPublicFieldsFromUsers(users: HydratedDocument<User, {}, {}>[]) {
+    let usersResponse :  UserView[] = [];
+    let tempUser : UserView = {};
+    users.forEach(function (user) {
+        tempUser.username = user.username;
+        if (user.firstName["public"]) {
+            tempUser.firstName = user.firstName["value"];
+        }
+        if (user.lastName["public"]) {
+            tempUser.lastName = user.lastName["value"];
+        }
+        if (user.email["public"]) {
+            tempUser.email = user.email["value"];
+        }
+        if (user.gender && user.gender["public"]) {
+            tempUser.gender = user.gender["value"];
+        }
+        if (user.nickname && user.nickname["public"]) {
+            tempUser.nickname = user.nickname["value"];
+        }
+        if (user.contacts && user.contacts["public"]) {
+            tempUser.contacts = user.contacts["name"];
+        }
+
+        tempUser.secondaryEmails = [];
+        user.secondaryEmails.forEach(function (email) {
+            if (email.public && tempUser.secondaryEmails) {
+                tempUser.secondaryEmails.push(email.value);
+            }
+        })
+
+        tempUser.preferences = [];
+        user.preferences.forEach(function (preference) {
+            if (preference.public && tempUser.preferences) {
+                tempUser.preferences.push({preferenceType:preference.preferenceType,value:preference.value});
+            }
+        })
+
+        usersResponse.push({...tempUser});
+        tempUser = {}
+    })
+    return usersResponse;
+}
