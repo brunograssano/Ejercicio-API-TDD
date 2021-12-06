@@ -39,7 +39,7 @@ export const searchUsers: RequestHandler = (request, response) => {
 
         let usersResponse :  UserView[] = getPublicFieldsFromUsers(users);
 
-        response.json(usersResponse);
+        response.json({message:"Searched successfully", users:usersResponse});
     });
 }
 

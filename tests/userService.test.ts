@@ -425,6 +425,75 @@ describe("User Service Tests", () => {
             });
     });
 
+    it('Should search for users whose username includes test', (done) => {
+        chai.request(baseUrl)
+            .get('/search/users')
+            .query({username:'test'})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal("Searched successfully");
+                expect(response.body.users.length).equal(2);
+                done();
+            });
+    });
+
+    it('Should search for users with preference for LibrosT', (done) => {
+        chai.request(baseUrl)
+            .get('/search/users')
+            .query({preferenceType:'LibrosT'})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal("Searched successfully");
+                expect(response.body.users.length).equal(1);
+                done();
+            });
+    });
+
+    it('Should not return the user with nickname nickOfTestUser2 as it is private', (done) => {
+        chai.request(baseUrl)
+            .get('/search/users')
+            .query({nickname:'nickOfTestUser2'})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal("Searched successfully");
+                expect(response.body.users.length).equal(0);
+                done();
+            });
+    });
+
+    it('Should add preferences to the user test1', (done) => {
+        chai.request(baseUrl)
+            .patch('/manage/users/' + userSession1.id)
+            .set('JWT-Token',token1)
+            .send({'preferences':[{
+                        "preferenceType":"LibrosTest",
+                        "value":"FantasticosTest",
+                        "public":true
+                    },
+                    {
+                        "preferenceType":"PeliculasTest",
+                        "value":"AccionTest",
+                        "public":true
+                    }]})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Successfully updated user');
+                done();
+            });
+    });
+
+    it('Should search for users with preference for LibrosT and Fantasticos', (done) => {
+        chai.request(baseUrl)
+            .get('/search/users')
+            .query({preferenceType:'LibrosT',preferenceValue:'Fantasticos'})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal("Searched successfully");
+                expect(response.body.users.length).equal(2);
+                done();
+            });
+    });
+
 
     it('Should return that the user test 1 deleted the account', (done) => {
         chai.request(baseUrl)
