@@ -144,6 +144,21 @@ export const changeMainEmail: RequestHandler = (request, response,next) => {
     );
 }
 
+export const addPhotoToUser: RequestHandler = (request, response) => {
+    User.findOneAndUpdate(
+        { _id: response.locals.session.id},
+        {photo:request.body.photo},
+        { new: true, useFindAndModify: false },
+        (error, user) => {
+            if (error) {
+                response.send(error);
+                return;
+            }
+            response.json({ message: 'Successfully updated photo'});
+        }
+    );
+}
+
 export const deleteUser: RequestHandler = (request, response) => {
     User.deleteOne({ _id: response.locals.session.id}, error => {
         if (error) {

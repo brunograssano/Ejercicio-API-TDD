@@ -19,7 +19,6 @@ interface UpdateUserData {
     nickname?:Object;
     secondaryEmails?:Object;
     preferences?:Object;
-    photo?:Object;
 }
 
 export function getSignUpData(requestBody:Object) {
@@ -46,6 +45,5 @@ export function getUpdatedDataFromUser(requestBody:Object) {
     updatedData.nickname = body.nickname;
     updatedData.secondaryEmails = body.secondaryEmails;
     updatedData.preferences = body.preferences;
-    updatedData.photo = body.photo;
     return updatedData as Object;
 }

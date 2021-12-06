@@ -67,21 +67,32 @@ describe("User Service Tests", () => {
             });
     });
 
-
     it('Should update the information about the user', (done) => {
         chai.request(baseUrl)
             .patch('/manage/users/' + userSession.id)
             .set('JWT-Token',token)
             .send({'firstName':{'value':'test1','public':true},
                 'lastName':{'value':'test2','public':true},
-                'nickname':{'value':'testNick','public':true},
-                'photo': {'value':'testPhotoInBase64','public':true}})
+                'nickname':{'value':'testNick','public':true}})
             .end((error , response) => {
                 expect(response.status).equal(200);
                 expect(response.body.message).equal('Successfully updated user');
                 done();
             });
     });
+
+    it('Should update the photo of the user', (done) => {
+        chai.request(baseUrl)
+            .patch('/resources/photo/test')
+            .set('JWT-Token',token)
+            .send({'photo': {'value':'testPhotoInBase64','public':true}})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Successfully updated photo');
+                done();
+            });
+    });
+
 
     it('Should return the information about the updated user', (done) => {
         chai.request(baseUrl)
@@ -108,14 +119,14 @@ describe("User Service Tests", () => {
             });
     });
 
-    it('Should the photo of the user private', (done) => {
+    it('Should make the photo of the user private', (done) => {
         chai.request(baseUrl)
-            .patch('/manage/users/' + userSession.id)
+            .patch('/resources/photo/test')
             .set('JWT-Token',token)
             .send({'photo': {'public':false}})
             .end((error , response) => {
                 expect(response.status).equal(200);
-                expect(response.body.message).equal('Successfully updated user');
+                expect(response.body.message).equal('Successfully updated photo');
                 done();
             });
     });

@@ -29,7 +29,7 @@ import {
 } from "../services/contactManagement";
 
 import {
-    addNewUser,
+    addNewUser, addPhotoToUser,
     changeMainEmail,
     deleteUser,
     forgotPassword,
@@ -53,6 +53,8 @@ const routes = (app: Application) => {
         .get(searchUsers)
 
     app.route('/resources/photo/:username')
+        // can change the photo from a user
+        .patch(jwtMiddleware,addPhotoToUser)
         // can get the photo from a user
         .get(getPhotoFromUser)
 
