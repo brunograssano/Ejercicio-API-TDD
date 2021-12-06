@@ -4,7 +4,8 @@
   "description": "rest example",
   "main": "index.ts",
   "scripts": {
-    "start": "nodemon ./index.ts"
+    "start": "nodemon ./index.ts",
+    "test": "mocha --require ts-node/register tests/userService.test.ts"
   },
   "author": "Tecnicas 7510 FIUBA",
   "license": "ISC",
