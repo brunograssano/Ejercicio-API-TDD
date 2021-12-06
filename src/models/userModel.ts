@@ -29,7 +29,6 @@ export type User = {
     firstName: UniqueValueField;
     lastName: UniqueValueField;
     username: string;
-    photo: UniqueValueField;
     nickname: UniqueValueField;
     gender: UniqueValueField;
     preferences: PreferenceField[];
@@ -37,6 +36,12 @@ export type User = {
     contacts: MultipleValuesInField;
     pendingContacts: string[];
     created_date: Date;
+}
+
+export type UserProfilePhoto = {
+    id:string
+    username: string;
+    photo: UniqueValueField;
 }
 
 export type UserView = {
@@ -86,12 +91,6 @@ export const UserSchema = new Schema<User>({
         unique: true,
         required: [true, 'Enter a username']
     },
-    photo: {
-        type: {
-            value: String,
-            public: Boolean,
-        },
-    },
     nickname: {
         type: {
             value: String,
@@ -128,4 +127,18 @@ export const UserSchema = new Schema<User>({
         type: Date,
         default: () => new Date()
     }
+});
+
+export const UserProfilePhotoSchema = new Schema<UserProfilePhoto>({
+    username: {
+        type: String,
+        unique: true,
+        required: [true, 'Enter a username']
+    },
+    photo: {
+        type: {
+            value: String,
+            public: Boolean,
+        },
+    },
 });

@@ -16,14 +16,17 @@ import {
 import {
     checkIfEmailIsValidatedById,
     checkIfEmailIsValidatedByUsername,
-    checkIfEmailIsValidatedByUsernameInHeader, validateEmail
+    checkIfEmailIsValidatedByUsernameInHeader,
+    validateEmail
 } from "../services/emailValidation";
 
 import {
     acceptContact,
     checkContactInviteExists,
     checkIfPreviouslyInvited,
-    checkIsAValidContact, deleteContact, getContacts,
+    checkIsAValidContact,
+    deleteContact,
+    getContacts,
     inviteContact,
     sendMessageToContact
 } from "../services/contactManagement";
@@ -31,6 +34,8 @@ import {
 import {
     addNewUser, addPhotoToUser,
     changeMainEmail,
+    createPhotoUser,
+    deletePhotoUser,
     deleteUser,
     forgotPassword,
     loginUser,
@@ -46,6 +51,7 @@ const routes = (app: Application) => {
         
         // sign up user
         .post(addNewUser,
+            createPhotoUser,
             createValidateEmailSession);
 
     app.route('/search/users')
@@ -78,6 +84,7 @@ const routes = (app: Application) => {
         // deleting a specific user
         .delete(jwtMiddleware,
             checkIfEmailIsValidatedById,
+            deletePhotoUser,
             deleteUser)
 
     app.route('/manage/contacts/:userID')

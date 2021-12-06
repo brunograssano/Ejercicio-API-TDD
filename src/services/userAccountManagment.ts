@@ -1,8 +1,9 @@
 import {NextFunction, RequestHandler} from "express";
-import {User} from "./userService";
+import {User,UserProfilePhoto} from "./userService";
 import {basicAuth, SALT_ROUNDS} from "./authService";
 import bcrypt from "bcrypt";
 import {getSignUpData, getUpdatedDataFromUser} from "./bodyCleaner";
+import {CallbackError} from "mongoose";
 
 export const addNewUser: RequestHandler = (request, response,next: NextFunction) => {
     const credentials = basicAuth(request.headers.authorization as string);
@@ -22,9 +23,21 @@ export const addNewUser: RequestHandler = (request, response,next: NextFunction)
                 id: user.id,
                 email: user.email.value,
             }
-
             next()
         });
+    });
+}
+
+export const createPhotoUser: RequestHandler = (request, response,next: NextFunction) => {
+    const credentials = basicAuth(request.headers.authorization as string);
+    const username = credentials[0];
+    let newProfilePhotoUser = new UserProfilePhoto({username:username});
+    newProfilePhotoUser.save((error, user) => {
+        if (error) {
+            response.send(error);
+            return;
+        }
+        next()
     });
 }
 
@@ -145,11 +158,11 @@ export const changeMainEmail: RequestHandler = (request, response,next) => {
 }
 
 export const addPhotoToUser: RequestHandler = (request, response) => {
-    User.findOneAndUpdate(
-        { _id: response.locals.session.id},
+    UserProfilePhoto.findOneAndUpdate(
+        { username: response.locals.session.username},
         {photo:request.body.photo},
         { new: true, useFindAndModify: false },
-        (error, user) => {
+        (error, userPhoto) => {
             if (error) {
                 response.send(error);
                 return;
@@ -157,6 +170,16 @@ export const addPhotoToUser: RequestHandler = (request, response) => {
             response.json({ message: 'Successfully updated photo'});
         }
     );
+}
+
+export const deletePhotoUser: RequestHandler = (request, response,next) => {
+    UserProfilePhoto.deleteOne({ username: response.locals.session.username}, (error:CallbackError) => {
+        if (error) {
+            response.send(error);
+            return;
+        }
+        next();
+    });
 }
 
 export const deleteUser: RequestHandler = (request, response) => {

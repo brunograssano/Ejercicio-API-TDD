@@ -1,10 +1,10 @@
 import {RequestHandler} from "express";
 import {model} from 'mongoose';
-import {UserSchema, UserView} from '../models/userModel';
+import {UserProfilePhotoSchema, UserSchema, UserView} from '../models/userModel';
 import {getPublicFieldsFromUsers, getSearchQuery} from "./queryServices";
 
 export const User = model('User', UserSchema);
-
+export const UserProfilePhoto = model('UserProfilePhoto', UserProfilePhotoSchema);
 
 export const getUsers: RequestHandler = (request, response) => {
     User.find({}, (error, users) => {
@@ -44,28 +44,28 @@ export const searchUsers: RequestHandler = (request, response) => {
 }
 
 export const getPhotoFromUser: RequestHandler = (request, response) => {
-    User.findOne({username: request.params.username}, {_id:0,username:1,photo:1},null,
-        (error, user) => {
+    UserProfilePhoto.findOne({username: request.params.username}, {_id:0,username:1,photo:1},null,
+        (error, userPhoto) => {
         if (error) {
             response.send(error);
             return;
         }
 
-        if (!user){
+        if (!userPhoto){
             response.status(400).json({message: "There are no users with that username"});
             return;
         }
 
-        if (!user.photo){
+        if (!userPhoto.photo){
             response.json({message: "There is no photo"});
             return;
         }
 
-        if (!user.photo.public){
+        if (!userPhoto.photo.public){
             response.json({message: "The photo is private"});
             return;
         }
 
-        response.json({message:"Photo sent successfully",payload:{username:user.username,photo:user.photo.value}});
+        response.json({message:"Photo sent successfully",payload:{username:userPhoto.username,photo:userPhoto.photo.value}});
     });
 }
