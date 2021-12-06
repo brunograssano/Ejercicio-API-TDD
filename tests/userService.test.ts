@@ -9,8 +9,12 @@ chai.use(chaiHttp);
 const SECRET_KEY_TEST : string = "akljsdfbuw3 c;keh20342 f394nm0mc@!#!$%!F$^ e"
 
 describe("User Service Tests", () => {
-    let token : string;
-    let userSession : Session;
+    let token1 : string;
+    let userSession1 : Session;
+
+    let token2 : string;
+    let userSession2 : Session;
+
     it('Should return successful sign up', (done) => {
         chai.request(baseUrl)
             .post('/users')
@@ -20,7 +24,38 @@ describe("User Service Tests", () => {
                 'lastName':{'value':'test','public':true}})
             .end((error , response) => {
                 expect(response.status).equal(201);
-                token = response.body.DEBUG.token;
+                token1 = response.body.DEBUG.token;
+                done();
+            });
+    });
+
+    it('Should return user needs to validate email if trying to update info', (done) => {
+        const decodedSession: DecodeResult = decodeSession(SECRET_KEY_TEST, token1);
+        if (decodedSession.type === 'valid'){
+            userSession1 = decodedSession.session;
+        } else{
+            return;
+        }
+        chai.request(baseUrl)
+            .patch('/manage/users/' + userSession1.id)
+            .set('JWT-Token',token1)
+            .send({'firstName':{'value':'test1','public':true},
+                'lastName':{'value':'test2','public':true},
+                'nickname':{'value':'testNick','public':true}})
+            .end((error , response) => {
+                expect(response.status).equal(400);
+                expect(response.body.message).equal('Validate the email to continue');
+                done();
+            });
+    });
+
+    it('Should return user needs to validate email if trying to log in', (done) => {
+        chai.request(baseUrl)
+            .post('/login/users')
+            .auth('test','test', {type:"basic"})
+            .end((error , response) => {
+                expect(response.status).equal(400);
+                expect(response.body.message).equal('Validate the email to continue');
                 done();
             });
     });
@@ -28,7 +63,7 @@ describe("User Service Tests", () => {
     it('Should validate the email of the user', (done) => {
         chai.request(baseUrl)
             .post('/validate/email')
-            .set('JWT-Token',token)
+            .set('JWT-Token',token1)
             .end((error , response) => {
                 expect(response.status).equal(200);
                 expect(response.body.message).equal("Email validated successfully, please login to continue");
@@ -37,22 +72,16 @@ describe("User Service Tests", () => {
     });
 
     it('Should return the information about the new user', (done) => {
-        const decodedSession: DecodeResult = decodeSession(SECRET_KEY_TEST, token);
-        if (decodedSession.type === 'valid'){
-            userSession = decodedSession.session;
-        } else{
-            return;
-        }
         chai.request(baseUrl)
-            .get('/manage/users/' + userSession.id)
-            .set('JWT-Token',token)
+            .get('/manage/users/' + userSession1.id)
+            .set('JWT-Token',token1)
             .end((error , response) => {
                 expect(response.status).equal(200);
                 expect(response.body.user.email.value).equal('test-email@test.com');
                 expect(response.body.user.firstName.value).equal('test');
                 expect(response.body.user.lastName.value).equal('test');
                 expect(response.body.user.username).equal('test');
-                expect(response.body.user._id).equal(userSession.id);
+                expect(response.body.user._id).equal(userSession1.id);
                 done();
             });
     });
@@ -69,8 +98,8 @@ describe("User Service Tests", () => {
 
     it('Should update the information about the user', (done) => {
         chai.request(baseUrl)
-            .patch('/manage/users/' + userSession.id)
-            .set('JWT-Token',token)
+            .patch('/manage/users/' + userSession1.id)
+            .set('JWT-Token',token1)
             .send({'firstName':{'value':'test1','public':true},
                 'lastName':{'value':'test2','public':true},
                 'nickname':{'value':'testNick','public':true}})
@@ -84,7 +113,7 @@ describe("User Service Tests", () => {
     it('Should update the photo of the user', (done) => {
         chai.request(baseUrl)
             .patch('/resources/photo/test')
-            .set('JWT-Token',token)
+            .set('JWT-Token',token1)
             .send({'photo': {'value':'testPhotoInBase64','public':true}})
             .end((error , response) => {
                 expect(response.status).equal(200);
@@ -96,8 +125,8 @@ describe("User Service Tests", () => {
 
     it('Should return the information about the updated user', (done) => {
         chai.request(baseUrl)
-            .get('/manage/users/' + userSession.id)
-            .set('JWT-Token',token)
+            .get('/manage/users/' + userSession1.id)
+            .set('JWT-Token',token1)
             .end((error , response) => {
                 expect(response.status).equal(200);
                 expect(response.body.user.email.value).equal('test-email@test.com');
@@ -122,7 +151,7 @@ describe("User Service Tests", () => {
     it('Should make the photo of the user private', (done) => {
         chai.request(baseUrl)
             .patch('/resources/photo/test')
-            .set('JWT-Token',token)
+            .set('JWT-Token',token1)
             .send({'photo': {'public':false}})
             .end((error , response) => {
                 expect(response.status).equal(200);
@@ -143,8 +172,8 @@ describe("User Service Tests", () => {
 
     it('Should return that the user has no contacts', (done) => {
         chai.request(baseUrl)
-            .get('/manage/contacts/' + userSession.id)
-            .set('JWT-Token',token)
+            .get('/manage/contacts/' + userSession1.id)
+            .set('JWT-Token',token1)
             .end((error , response) => {
                 expect(response.status).equal(200);
                 expect(response.body.message).equal('There are no contacts');
@@ -154,8 +183,8 @@ describe("User Service Tests", () => {
 
     it('Should return that the user cannot delete a contact if it has none', (done) => {
         chai.request(baseUrl)
-            .delete('/manage/contacts/' + userSession.id)
-            .set('JWT-Token',token)
+            .delete('/manage/contacts/' + userSession1.id)
+            .set('JWT-Token',token1)
             .send({'name':'test'})
             .end((error , response) => {
                 expect(response.status).equal(400);
@@ -202,7 +231,7 @@ describe("User Service Tests", () => {
         chai.request(baseUrl)
             .patch('/login/users')
             .auth('test','testNewPassword', {type:"basic"})
-            .set('JWT-Token',token)
+            .set('JWT-Token',token1)
             .end((error , response) => {
                 expect(response.body.message).equal('Successfully updated password');
                 expect(response.status).equal(201);
@@ -215,7 +244,7 @@ describe("User Service Tests", () => {
         chai.request(baseUrl)
             .post('/login/users')
             .auth('test','testNewPassword', {type:"basic"})
-            .set('JWT-Token',token)
+            .set('JWT-Token',token1)
             .end((error , response) => {
                 expect(response.body.message).equal('Successfully logged in');
                 expect(response.status).equal(201);
@@ -224,10 +253,183 @@ describe("User Service Tests", () => {
             });
     });
 
-    it('Should return that the user deleted the account', (done) => {
+    it('Should return successful sign up for the second test user', (done) => {
         chai.request(baseUrl)
-            .delete('/manage/users/' + userSession.id)
-            .set('JWT-Token',token)
+            .post('/users')
+            .auth('test2','test2', {type:"basic"})
+            .send({'email':{'value':'test-email2@test.com','public':false},
+                'firstName':{'value':'testFirstName2','public':true},
+                'lastName':{'value':'testLastName2','public':true},
+                'nickname':{'value':'nickOfTestUser2','public':false},
+                'gender':{'value':'genderTest2','public':true},
+                'preferences':[{
+                        "preferenceType":"LibrosTest",
+                        "value":"FantasticosTest",
+                        "public":true
+                    },
+                    {
+                        "preferenceType":"PeliculasTest",
+                        "value":"AccionTest",
+                        "public":false
+                    }]
+            })
+            .end((error , response) => {
+                expect(response.status).equal(201);
+                token2 = response.body.DEBUG.token;
+                done();
+            });
+    });
+
+    it('Should validate the email of the test user2', (done) => {
+        const decodedSession: DecodeResult = decodeSession(SECRET_KEY_TEST, token2);
+        if (decodedSession.type === 'valid'){
+            userSession2 = decodedSession.session;
+        } else{
+            return;
+        }
+        chai.request(baseUrl)
+            .post('/validate/email')
+            .set('JWT-Token',token2)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal("Email validated successfully, please login to continue");
+                done();
+            });
+    });
+
+    it('test1 should invite test2 to be a contact', (done) => {
+        chai.request(baseUrl)
+            .post('/invite/contact')
+            .set('JWT-Token',token1)
+            .send({'contactUsername': 'test2','message':'Accept the invitation test2'})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Contact invite sent successfully.');
+                done();
+            });
+    });
+
+    it('Should return that test user2 has a pending contact', (done) => {
+        chai.request(baseUrl)
+            .get('/manage/users/' + userSession2.id)
+            .set('JWT-Token',token2)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.user.pendingContacts[0]).equal('test');
+                done();
+            });
+    });
+
+    it('test1 should not be able to invite test2 again while the invitation is active', (done) => {
+        chai.request(baseUrl)
+            .post('/invite/contact')
+            .set('JWT-Token',token1)
+            .send({'contactUsername': 'test2','message':'Accept the invitation test2'})
+            .end((error , response) => {
+                expect(response.status).equal(400);
+                expect(response.body.message).equal('Cannot invite again a contact');
+                done();
+            });
+    });
+
+    it('should not be possible to invite yourself', (done) => {
+        chai.request(baseUrl)
+            .post('/invite/contact')
+            .set('JWT-Token',token1)
+            .send({'contactUsername': 'test','message':'Accept the invitation test1'})
+            .end((error , response) => {
+                expect(response.status).equal(400);
+                expect(response.body.message).equal('Cannot invite yourself');
+                done();
+            });
+    });
+
+    it('should not be possible to invite a user that does not exists', (done) => {
+        chai.request(baseUrl)
+            .post('/invite/contact')
+            .set('JWT-Token',token1)
+            .send({'contactUsername': 'test3','message':'Accept the invitation test3'})
+            .end((error , response) => {
+                expect(response.status).equal(400);
+                expect(response.body.message).equal('User doesn\'t exists');
+                done();
+            });
+    });
+
+    it('test2 should be able to accept test2 invitation', (done) => {
+        chai.request(baseUrl)
+            .post('/accept/contact')
+            .set('JWT-Token',token2)
+            .send({'contactUsername': 'test'})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Contact accepted successfully.');
+                done();
+            });
+    });
+
+    it('Should return that test user2 has no pending contacts', (done) => {
+        chai.request(baseUrl)
+            .get('/manage/users/' + userSession2.id)
+            .set('JWT-Token',token2)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.user.pendingContacts.length).equal(0);
+                done();
+            });
+    });
+
+    it('Should return that test user1 has test2 as a contact', (done) => {
+        chai.request(baseUrl)
+            .get('/manage/contacts/' + userSession1.id)
+            .set('JWT-Token',token1)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.contacts.length).equal(1);
+                done();
+            });
+    });
+
+    it('should not be possible to invite a user that is already a contact', (done) => {
+        chai.request(baseUrl)
+            .post('/invite/contact')
+            .set('JWT-Token',token1)
+            .send({'contactUsername': 'test2','message':'Accept the invitation test2'})
+            .end((error , response) => {
+                expect(response.status).equal(400);
+                expect(response.body.message).equal('Already a contact');
+                done();
+            });
+    });
+
+    it('Should return that test user1 deleted test2 as a contact', (done) => {
+        chai.request(baseUrl)
+            .delete('/manage/contacts/' + userSession1.id)
+            .set('JWT-Token',token1)
+            .send({name:'test2'})
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Contact deleted successfully');
+                done();
+            });
+    });
+
+    it('Should return that test user1 has no contacts', (done) => {
+        chai.request(baseUrl)
+            .get('/manage/contacts/' + userSession1.id)
+            .set('JWT-Token',token1)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal("There are no contacts");
+                done();
+            });
+    });
+
+
+    it('Should return that the user test 1 deleted the account', (done) => {
+        chai.request(baseUrl)
+            .delete('/manage/users/' + userSession1.id)
+            .set('JWT-Token',token1)
             .end((error , response) => {
                 expect(response.status).equal(200);
                 expect(response.body.message).equal('Successfully deleted user');
@@ -235,5 +437,15 @@ describe("User Service Tests", () => {
             });
     });
 
+    it('Should return that the user test 2 deleted the account', (done) => {
+        chai.request(baseUrl)
+            .delete('/manage/users/' + userSession1.id)
+            .set('JWT-Token',token2)
+            .end((error , response) => {
+                expect(response.status).equal(200);
+                expect(response.body.message).equal('Successfully deleted user');
+                done();
+            });
+    });
 
 })

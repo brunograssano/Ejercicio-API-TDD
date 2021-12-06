@@ -20,7 +20,7 @@ export const getContacts: RequestHandler = (request, response) => {
             return;
         }
 
-        User.find({"username": {"$in": user?.contacts.name} },{_id:0,password:0,__v:0,photo:0},null,(errorContacts, contacts) => {
+        User.find({"username": {"$in": user?.contacts.name} },{_id:0,password:0,__v:0},null,(errorContacts, contacts) => {
             if (errorContacts) {
                 response.send(errorContacts);
                 return;
