@@ -8,8 +8,8 @@ interface Filters {
     email?:Object;
     gender?:Object;
     nickname?:Object;
-    contacts?:Object;
-    preferences?:Object;
+    "preferenceType"?:Object;
+    "preferenceValue"?:Object;
 }
 
 
@@ -25,9 +25,9 @@ interface QuerySearch {
     "gender.public"?:Object;
     "nickname.value"?:Object;
     "nickname.public"?:Object;
-    "contacts.value"?:Object;
-    "contacts.public"?:Object;
-    preferences?:Object;
+    "preferences.preferenceType"?:Object;
+    "preferences.value"?:Object;
+    "preferences.public"?:Object;
 }
 
 
@@ -37,46 +37,45 @@ export const getSearchQuery = (queryValues: Object) : Object => {
     if (searchValues == null) {
         return query;
     }
-
-    if(searchValues.username != ""){
+    if(searchValues.username){
         query.username = {"$regex":searchValues.username};
     }
 
-    if(searchValues.firstName != ""){
+    if(searchValues.firstName){
         query["firstName.value"] = {"$regex":searchValues.firstName};
         query["firstName.public"] = true;
     }
 
-    if(searchValues.lastName != ""){
+    if(searchValues.lastName){
         query["lastName.value"] = {"$regex":searchValues.lastName};
         query["lastName.public"] = true;
     }
 
-    if(searchValues.email != ""){
+    if(searchValues.email){
         query["email.value"] = {"$regex":searchValues.email};
         query["email.public"] = true;
     }
 
-    if(searchValues.gender != ""){
+    if(searchValues.gender){
         query["gender.value"] = {"$regex":searchValues.gender};
         query["gender.public"] = true;
     }
 
-    if(searchValues.nickname != ""){
+    if(searchValues.nickname){
         query["nickname.value"] = {"$regex":searchValues.nickname};
         query["nickname.public"] = true;
     }
 
-    if(searchValues.contacts != ""){
-        query["contacts.value"] = {"$in":searchValues.contacts};
-        query["contacts.public"] = true;
+    if(searchValues.preferenceType && searchValues.preferenceValue){
+        query["preferences.preferenceType"] = {"$regex":searchValues.preferenceType};
+        query["preferences.value"] = {"$regex":searchValues.preferenceValue};
+        query["preferences.public"] = true;
+    }
+    else if (searchValues.preferenceType) {
+        query["preferences.preferenceType"] = {"$regex":searchValues.preferenceType};
+        query["preferences.public"] = true;
     }
 
-/*
-    if(searchValues.preferences != []){
-        query.preferences = {"$elemMatch":{"value":{"$in":searchValues.preferences},"public":true}};
-    }
-*/
 
     return query;
 }
