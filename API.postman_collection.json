@@ -1,0 +1,619 @@
+{
+	"info": {
+		"_postman_id": "5510d481-d281-4cbe-959d-3f9bc10408f5",
+		"name": "API TDD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Registrar Usuario",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "unaContrasenia",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "unNombreDeUsuario",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": {\"value\":\"unMail\", \"public\": true},\r\n    \"firstName\": {\"value\":\"unNombre\", \"public\": true},\r\n    \"lastName\": {\"value\":\"unApellido\", \"public\": false}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"users"
+					]
+				},
+				"description": "Registra un usuario en el sistema. Requiere como minimo del nombre de usuario, contraseña, mail, nombre y apellido.\n\nAlgunos campos adicionales que se pueden agregar al Body son:\n\n*   nickname\n*   secondaryEmails\n*   preferences\n*   gender"
+			},
+			"response": []
+		},
+		{
+			"name": "Validar mail",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenEnviadoAlMail",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/validate/email",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"validate",
+						"email"
+					]
+				},
+				"description": "Valida el mail ingresado al registrarse o cambiar el mail principal. Requiere del token enviado al mail."
+			},
+			"response": []
+		},
+		{
+			"name": "Loguearse",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "unNombreDeUsuario",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "unaContrasenia",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/login/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"login",
+						"users"
+					]
+				},
+				"description": "Forma de iniciar sesión en el sistema. Requiere del nombre de usuario y contraseña enviados como Basic Auth."
+			},
+			"response": []
+		},
+		{
+			"name": "Usuario se olvido el password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"unNombreDeUsuario\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/login/reset/password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"login",
+						"reset",
+						"password"
+					]
+				},
+				"description": "Forma de indicar que el usuario se olvido la contraseña actual. Se envía un token al mail principal del usuario para que pueda actualizarla."
+			},
+			"response": []
+		},
+		{
+			"name": "Invitar Contacto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDeLaSesion",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"contactUsername\":\"nombreDeUsuarioDelContactoInvitado\",\r\n    \"message\":\"unMensaje\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/invite/contact",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"invite",
+						"contact"
+					]
+				},
+				"description": "Envía una invitación de contacto al nombre de usuario agregado en Body. Se puede enviar junto con un mensaje.\n\nEl usuario invitado va a recibir un email con la invitación y el mensaje."
+			},
+			"response": []
+		},
+		{
+			"name": "Aceptar Contacto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuarioQueRecibioInvitacion",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"contactUsername\":\"nombreDeUsuarioDelQueEnvioLaInvitacion\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/accept/contact",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"accept",
+						"contact"
+					]
+				},
+				"description": "Acepta a un contacto. Se envía el nombre de usuario para poder determinar a cual aceptar."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Datos de Usuario",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuario",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:4000/manage/users/idDelUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"manage",
+						"users",
+						"idDelUsuario"
+					]
+				},
+				"description": "Devuelve los datos del usuario en la sesión actual."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Foto de usuario por username",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/resources/photo/unNombreDeUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"resources",
+						"photo",
+						"unNombreDeUsuario"
+					]
+				},
+				"description": "Devuelve la foto del nombre de usuario enviado como parámetro. Si esta privada o no tiene se retorna un mensaje indicandolo."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Contactos",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuario",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:4000/manage/contacts/idDelUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"manage",
+						"contacts",
+						"idDelUsuario"
+					]
+				},
+				"description": "Devuelve los contactos del usuario de la sesión actual. Si no se tienen contactos se indica en un mensaje."
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar usuarios",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/search/users?&firstName=&username=&lastName&email&contacts&gender&nickname&preferenceType&preferenceValue",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"search",
+						"users"
+					],
+					"query": [
+						{
+							"key": null,
+							"value": null
+						},
+						{
+							"key": "firstName",
+							"value": ""
+						},
+						{
+							"key": "username",
+							"value": ""
+						},
+						{
+							"key": "lastName",
+							"value": null
+						},
+						{
+							"key": "email",
+							"value": null
+						},
+						{
+							"key": "contacts",
+							"value": null
+						},
+						{
+							"key": "gender",
+							"value": null
+						},
+						{
+							"key": "nickname",
+							"value": null
+						},
+						{
+							"key": "preferenceType",
+							"value": null
+						},
+						{
+							"key": "preferenceValue",
+							"value": null
+						}
+					]
+				},
+				"description": "Busca usuarios que cumplan con los argumentos enviados como Query."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener usuarios",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"users"
+					]
+				},
+				"description": "Obtiene todos los usuarios. Solo para DEBUG."
+			},
+			"response": []
+		},
+		{
+			"name": "Agregar foto usuario",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuario",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"photo\": {\r\n        \"value\": \"unaFotoEnBase64\",\r\n        \"public\": true\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/resources/photo/nombreDeUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"resources",
+						"photo",
+						"nombreDeUsuario"
+					]
+				},
+				"description": "Agrega o actualiza una foto de perfil al usuario de la sesión actual.\n\nSe puede enviar:\n\n*   La foto en base 64.\n*   Si se esta publica o privada"
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Password",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "unaNuevaContrasenia",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "nombreDeUsuario",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuario",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:4000/login/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"login",
+						"users"
+					]
+				},
+				"description": "Forma de actualizar el password de un usuario, ya sea porque se lo olvido (recibió el token previamente en el mail) o desea cambiarlo."
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Usuario",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuario",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\":{\r\n        \"value\":\"unNuevoNombre\",\r\n        \"public\":true\r\n    },\r\n    \"lastName\":{\r\n        \"value\":\"unNuevoApellido\",\r\n        \"public\":true\r\n    },\r\n    \"nickname\":{\r\n        \"value\":\"unNickname\",\r\n        \"public\":true\r\n    },\r\n    \"secondaryEmails\":[\r\n        {\r\n            \"email\":\"otroMail\",\r\n            \"notifications\":true,\r\n            \"public\":true\r\n        }\r\n    ],\r\n    \"gender\":{\r\n        \"value\":\"unGenero\",\r\n        \"public\":true\r\n    },\r\n    \"preferences\": [\r\n        {\r\n            \"preferenceType\":\"tipoDePreferencia-Ej-Libros\",\r\n            \"value\":\"valorDeLaPreferencia-Ej-Fantasticos\",\r\n            \"public\":true\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/manage/users/idDelUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"manage",
+						"users",
+						"idDelUsuario"
+					]
+				},
+				"description": "Actualiza los datos del usuario de la sesión."
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar email principal",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDeLaSesion",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"elNuevoEmail\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/update/main/email",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"update",
+						"main",
+						"email"
+					]
+				},
+				"description": "Forma de cambiar el email principal del usuario. Una vez cambiado va a tener que validarlo."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar Usuario",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuario",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:4000/manage/users/idDelUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"manage",
+						"users",
+						"idDelUsuario"
+					]
+				},
+				"description": "Elimina la cuenta del usuario de la sesión actual."
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar Contacto",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "JWT-Token",
+						"value": "tokenDelUsuario",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"nombreDelUsuarioAEliminar\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/manage/contacts/idDelUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"manage",
+						"contacts",
+						"idDelUsuario"
+					]
+				},
+				"description": "Forma de eliminar un contacto de la sesión actual."
+			},
+			"response": []
+		}
+	]
+}
