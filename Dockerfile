@@ -1,4 +1,4 @@
-FROM tarampampam/node:13-alpine
+FROM node:16.3-alpine
 
 WORKDIR /home/rest-template-node-BG/
 

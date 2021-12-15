@@ -15,12 +15,12 @@ export const getContacts: RequestHandler = (request, response) => {
             return;
         }
 
-        if (user?.contacts.name.length == 0){
+        if (!user || (user && user.contacts.name.length == 0)){
             response.json({message: "There are no contacts",contacts:[]});
             return;
         }
 
-        User.find({"username": {"$in": user?.contacts.name} },{_id:0,password:0,__v:0},null,(errorContacts, contacts) => {
+        User.find({"username": {"$in": user.contacts.name} },{_id:0,password:0,__v:0},null,(errorContacts, contacts) => {
             if (errorContacts) {
                 response.send(errorContacts);
                 return;
